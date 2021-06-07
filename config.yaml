@@ -1,0 +1,6 @@
+Drivers: # device or mount point
+  - "/Volumes/VIPER_1TB"
+  - "/Volumes/WD03"
+# csv: 
+#   mode: "daily" # daily, solid
+#   dir: ""
