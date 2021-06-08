@@ -1,4 +1,4 @@
-module parser
+module drvcheck
 
 go 1.16
 
