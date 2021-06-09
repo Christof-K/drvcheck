@@ -1,6 +1,9 @@
-Drivers: # device or mount point
-  - "/Volumes/VIPER_1TB"
-  - "/Volumes/WD03"
-# csv: 
-#   mode: "daily" # daily, solid
-#   dir: ""
+%YAML 1.2
+---
+drivers:
+  - /Volumes/VIPER_1TB
+  - /Volumes/WD03
+csv: 
+    mode: daily
+    dir: /Users/kk/drvcheck
+...

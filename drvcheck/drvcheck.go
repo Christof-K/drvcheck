@@ -19,7 +19,7 @@ type rowHandler func()
 
 func check() []error {
 
-	conf, cerr := getConfig()
+	conf, cerr := GetConfig()
 	if cerr != nil { return append(make([]error, 0), cerr) } 
 
 	cmd := exec.Command("df")
@@ -30,13 +30,17 @@ func check() []error {
 	lines := strings.Split(stringOutput, "\n")
 
 	for _, line := range lines {
-		for _, vol := range conf.Drivers {
+		for _, vol := range conf.configYaml.Drivers {
 			if strings.Contains(line, vol) {
 				row := ErrRow{}
 				args := strings.Fields(line)
 				row.fill(args)
+
+				// todo: error handling refactor
+
 				if row.errs != nil { return row.errs }
-				row.store()
+				store_errs := row.store()
+				if store_errs != nil { return store_errs }
 				if row.errs != nil { return row.errs }
 			}
 		}

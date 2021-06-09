@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -47,8 +46,11 @@ func (erow *ErrRow) parseIntWrapper(value string, result *int64) {
 	}
 }
 
-func (erow *ErrRow) store() error {
-	// todo next
-	fmt.Println(erow)
-	return nil
+// todo: zapis calosci a nie kazdego rowa osobono - bez sensu
+func (erow *ErrRow) store() []error {
+
+	model := CsvModel{}
+	model.store(*erow)
+	
+	return model.errs
 }

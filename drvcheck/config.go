@@ -1,35 +1,38 @@
 package helper
 
 import (
-	"io/ioutil"
-	"gopkg.in/yaml.v3"
+	"os"
+	"github.com/goccy/go-yaml"
 )
 
 type configYaml struct {
-	Drivers []string `yaml:"Drivers,flow"`
+	Drivers []string `yaml:",flow"`
 	Csv struct {
-		Mode string `yaml:"mode"`
-		Dir string `yaml:"dir"`
+		Mode string
+		Dir string
 	}
 }
 
 
 type config struct {
 	isLoaded bool
-	configYaml
+	configYaml *configYaml
 }
 
-var conf = &config{isLoaded: false}
+var conf = &config{
+	isLoaded: false,
+	configYaml: &configYaml{},
+}
 
-func getConfig() (*config, error) {
-	if !conf.isLoaded {
-		cyaml, err := ioutil.ReadFile("./config.yaml")
+func GetConfig() (*config, error) {
+	
+	if conf.isLoaded != true {
+		cyaml, err := os.ReadFile("./config.yaml")
 		if err != nil { return nil, err }
-		cy := configYaml{}
-		uerr := yaml.Unmarshal(cyaml, &cy)
+		uerr := yaml.Unmarshal(cyaml, conf.configYaml)
 		if uerr != nil { return nil, uerr }
-		conf.configYaml = cy
 		conf.isLoaded = true
 	}
+
 	return conf, nil
 }
