@@ -34,16 +34,17 @@ func (erow *ErrRow) fill(args []string) {
 	erow.parseIntWrapper(args[6], &erow.row.IsFree)
 	erow.row.IsUsedPercent = args[7]
 	erow.row.MountedOn = args[8]
-	erow.row.Time = time.Now().Local().Format("2000-12-31 23:00:00")
+	erow.row.Time = time.Now().Local().Format("2006-01-02 15:04:05")
 }
 
 
+// todo - nie dziala referencja
 func (erow *ErrRow) parseIntWrapper(value string, result *int64) {
 	res, err := strconv.ParseInt(value, 0, 64)
 	if err != nil {
 		erow.errs = append(erow.errs, err)
 	} else {
-		result = &res 
+		*result = res 
 	}
 }
 
