@@ -61,19 +61,21 @@ func (model *CsvModel) store(erow ErrRow) {
 	}
 }
 
+
+var delimiter = ";"
 func (model *CsvModel) _strigify() string {
 	var result string
 
 	result = "\n"
-	result = result + model.erow.row.Filesystem + ","
-	result = result + strconv.FormatInt(model.erow.row.Size, 10) + ","
-	result = result + strconv.FormatInt(model.erow.row.Used, 10) + ","
-	result = result + strconv.FormatInt(model.erow.row.Avail, 10) + ","
-	result = result + model.erow.row.Capacity + ","
-	result = result + strconv.FormatInt(model.erow.row.IsUsed, 10) + ","
-	result = result + strconv.FormatInt(model.erow.row.IsFree, 10) + ","
-	result = result + model.erow.row.IsUsedPercent + ","
-	result = result + model.erow.row.MountedOn + ","
+	result = result + model.erow.row.Filesystem + delimiter
+	result = result + strconv.FormatInt(model.erow.row.Size, 10) + delimiter
+	result = result + strconv.FormatInt(model.erow.row.Used, 10) + delimiter
+	result = result + strconv.FormatInt(model.erow.row.Avail, 10) + delimiter
+	result = result + model.erow.row.Capacity + delimiter
+	result = result + strconv.FormatInt(model.erow.row.IsUsed, 10) + delimiter
+	result = result + strconv.FormatInt(model.erow.row.IsFree, 10) + delimiter
+	result = result + model.erow.row.IsUsedPercent + delimiter
+	result = result + model.erow.row.MountedOn + delimiter
 	result = result + model.erow.row.Time
 
 	return result
