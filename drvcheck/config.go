@@ -2,14 +2,17 @@ package helper
 
 import (
 	"io/ioutil"
-	"gopkg.in/yaml.v2"
-	
+	"gopkg.in/yaml.v3"
 )
 
 type configYaml struct {
 	Drivers []string `yaml:"Drivers,flow"`
-	// DB - todo
+	Csv struct {
+		Mode string `yaml:"mode"`
+		Dir string `yaml:"dir"`
+	}
 }
+
 
 type config struct {
 	isLoaded bool
@@ -23,7 +26,7 @@ func getConfig() (*config, error) {
 		cyaml, err := ioutil.ReadFile("./config.yaml")
 		if err != nil { return nil, err }
 		cy := configYaml{}
-		uerr := yaml.UnmarshalStrict(cyaml, &cy)
+		uerr := yaml.Unmarshal(cyaml, &cy)
 		if uerr != nil { return nil, uerr }
 		conf.configYaml = cy
 		conf.isLoaded = true

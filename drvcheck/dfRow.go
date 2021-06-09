@@ -38,7 +38,6 @@ func (erow *ErrRow) fill(args []string) {
 }
 
 
-// todo - nie dziala referencja
 func (erow *ErrRow) parseIntWrapper(value string, result *int64) {
 	res, err := strconv.ParseInt(value, 0, 64)
 	if err != nil {
