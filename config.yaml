@@ -8,6 +8,7 @@ drivers:
   - /Volumes/WD03
   - /Volumes/WD04
   - /Volumes/WD05
+unit: GB # options: KB, MB, GB, TB, PB, EB, ZB, JB
 csv: 
     mode: daily
     dir: /Users/kk/drvcheck
@@ -15,12 +16,10 @@ csv:
       - MountedOn
       - Filesystem
       - Capacity
-      - IsUsedPercent
       - Size
       - Used
       - Avail
-      - IsUsed
-      - IsFree
       - Time
+      - MemUnit
 
 ...

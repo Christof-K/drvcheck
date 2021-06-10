@@ -92,25 +92,53 @@ func (model *CsvModel) _strigify() string {
 			case _Filesystem:
 				tmp = append(tmp, model.erow.row.Filesystem)
 			case _Size:
-				tmp = append(tmp, strconv.FormatInt(model.erow.row.Size, 10))
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.Size), 10))
 			case _Used:
-				tmp = append(tmp, strconv.FormatInt(model.erow.row.Used, 10))
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.Used), 10))
 			case _Avail:
-				tmp = append(tmp, strconv.FormatInt(model.erow.row.Avail, 10))
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.Avail), 10))
 			case _Capacity:
 				tmp = append(tmp, model.erow.row.Capacity)
+			// --------
 			case _IsUsed:
-				tmp = append(tmp, strconv.FormatInt(model.erow.row.IsUsed, 10))
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.IsUsed), 10))
 			case _IsFree:
-				tmp = append(tmp, strconv.FormatInt(model.erow.row.IsFree, 10))
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.IsFree), 10))
 			case _IsUsedPercent:
+			// --------
 				tmp = append(tmp, model.erow.row.IsUsedPercent)
 			case _MountedOn:
 				tmp = append(tmp, model.erow.row.MountedOn)
 			case _Time:
 				tmp = append(tmp, model.erow.row.Time)
+			case _MemUnit:
+				tmp = append(tmp, conf.configYaml.Unit)
 		}
 	}
 
 	return "\n" + strings.Join(tmp, delimiter)
+}
+
+func parseMemInt(value int64) int64 {
+	var result int64
+	conf, _ := GetConfig()
+	switch (conf.configYaml.Unit) {
+		case "KB":
+			result = value
+		case "MB":
+			result = value / 1024
+		case "GB":
+			result = value / 1024 / 1024
+		case "TB":
+			result = value / 1024 / 1024 / 1024
+		case "PB":
+			result = value / 1024 / 1024 / 1024 / 1024
+		case "EB":
+			result = value / 1024 / 1024 / 1024 / 1024 / 1024
+		case "ZB":
+			result = value / 1024 / 1024 / 1024 / 1024 / 1024 / 1024
+		case "JB":
+			result = value / 1024 / 1024 / 1024 / 1024 / 1024 / 1024 / 1024
+	}
+	return result
 }

@@ -16,6 +16,7 @@ type row struct {
 	IsUsedPercent string
 	MountedOn     string
 	Time          string
+	MemUnit		  string
 }
 
 const _Filesystem = "Filesystem"
@@ -28,6 +29,7 @@ const _IsFree = "IsFree"
 const _IsUsedPercent = "IsUsedPercent"
 const _MountedOn = "MountedOn"
 const _Time = "Time"
+const _MemUnit = "MemUnit"
 
 type ErrRow struct {
 	row row
@@ -35,16 +37,20 @@ type ErrRow struct {
 }
 
 func (erow *ErrRow) fill(args []string) {
+
+	conf, _ := GetConfig()
+
 	erow.row.Filesystem = args[0]
 	erow.parseIntWrapper(args[1], &erow.row.Size)
 	erow.parseIntWrapper(args[2], &erow.row.Used)
 	erow.parseIntWrapper(args[3], &erow.row.Avail)
 	erow.row.Capacity = args[4]
-	erow.parseIntWrapper(args[5], &erow.row.IsUsed)
-	erow.parseIntWrapper(args[6], &erow.row.IsFree)
-	erow.row.IsUsedPercent = args[7]
-	erow.row.MountedOn = args[8]
+	// erow.parseIntWrapper(args[5], &erow.row.IsUsed)
+	// erow.parseIntWrapper(args[6], &erow.row.IsFree)
+	// erow.row.IsUsedPercent = args[7]
+	erow.row.MountedOn = args[5]
 	erow.row.Time = time.Now().Local().Format("2006-01-02 15:04:05")
+	erow.row.MemUnit = conf.configYaml.Unit
 }
 
 

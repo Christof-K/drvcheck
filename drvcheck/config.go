@@ -7,6 +7,7 @@ import (
 
 type configYaml struct {
 	Drivers []string `yaml:",flow"`
+	Unit string
 	Csv struct {
 		Mode string
 		Dir string
