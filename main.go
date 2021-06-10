@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	// todo: zapis csv
+	// todo: config - jednostka pamieci
 	// todo: executable?
 	// todo: http://golang.org.pl/lang/08_oop.html
 	helper.Run()

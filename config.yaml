@@ -2,8 +2,25 @@
 ---
 drivers:
   - /Volumes/VIPER_1TB
+  - /Volumes/2_VIPER_1TB
+  - /Volumes/WD01
+  - /Volumes/WD02
   - /Volumes/WD03
+  - /Volumes/WD04
+  - /Volumes/WD05
 csv: 
     mode: daily
     dir: /Users/kk/drvcheck
+    header:
+      - MountedOn
+      - Filesystem
+      - Capacity
+      - IsUsedPercent
+      - Size
+      - Used
+      - Avail
+      - IsUsed
+      - IsFree
+      - Time
+
 ...

@@ -10,6 +10,7 @@ type configYaml struct {
 	Csv struct {
 		Mode string
 		Dir string
+		Header []string `yaml:",flow"`
 	}
 }
 

@@ -18,6 +18,17 @@ type row struct {
 	Time          string
 }
 
+const _Filesystem = "Filesystem"
+const _Size = "Size"
+const _Used = "Used"
+const _Avail = "Avail"
+const _Capacity = "Capacity"
+const _IsUsed = "IsUsed"
+const _IsFree = "IsFree"
+const _IsUsedPercent = "IsUsedPercent"
+const _MountedOn = "MountedOn"
+const _Time = "Time"
+
 type ErrRow struct {
 	row row
 	errs []error

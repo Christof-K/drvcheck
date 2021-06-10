@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
+	// "reflect"
 )
 
 type CsvModel struct {
@@ -49,9 +51,13 @@ func (model *CsvModel) store(erow ErrRow) {
 		return
 	}
 
-	// todo: table header jesli pusty pliczek
 	fileContentByte, _ := os.ReadFile(filename)
 	fileContentStr := string(fileContentByte)
+
+	if fileContentStr == "" {
+		fileContentStr, _ = BuildHeader()
+	}
+
 	fileContentStr = fileContentStr + model._strigify()
 
 	write_error := os.WriteFile(filename, []byte(fileContentStr), 0777)
@@ -63,20 +69,48 @@ func (model *CsvModel) store(erow ErrRow) {
 
 
 var delimiter = ";"
+
+// todo: wykrywanie czy config sie zmienil na przestrzeni tego samego pliku
+func BuildHeader() (string, error) {
+	var strheader string
+	conf, err := GetConfig()
+	strheader = strheader + strings.Join(conf.configYaml.Csv.Header, delimiter)
+	return strheader, err
+}
+
+
 func (model *CsvModel) _strigify() string {
-	var result string
+	var tmp []string
 
-	result = "\n"
-	result = result + model.erow.row.Filesystem + delimiter
-	result = result + strconv.FormatInt(model.erow.row.Size, 10) + delimiter
-	result = result + strconv.FormatInt(model.erow.row.Used, 10) + delimiter
-	result = result + strconv.FormatInt(model.erow.row.Avail, 10) + delimiter
-	result = result + model.erow.row.Capacity + delimiter
-	result = result + strconv.FormatInt(model.erow.row.IsUsed, 10) + delimiter
-	result = result + strconv.FormatInt(model.erow.row.IsFree, 10) + delimiter
-	result = result + model.erow.row.IsUsedPercent + delimiter
-	result = result + model.erow.row.MountedOn + delimiter
-	result = result + model.erow.row.Time
+	conf, _ := GetConfig()
+	helms := conf.configYaml.Csv.Header
 
-	return result
+	for _, elm := range helms {
+		// fmt.Println("----", elm, model.erow.row)
+		// todo: reflect on row field to get its name?
+		switch(elm) {
+			case _Filesystem:
+				tmp = append(tmp, model.erow.row.Filesystem)
+			case _Size:
+				tmp = append(tmp, strconv.FormatInt(model.erow.row.Size, 10))
+			case _Used:
+				tmp = append(tmp, strconv.FormatInt(model.erow.row.Used, 10))
+			case _Avail:
+				tmp = append(tmp, strconv.FormatInt(model.erow.row.Avail, 10))
+			case _Capacity:
+				tmp = append(tmp, model.erow.row.Capacity)
+			case _IsUsed:
+				tmp = append(tmp, strconv.FormatInt(model.erow.row.IsUsed, 10))
+			case _IsFree:
+				tmp = append(tmp, strconv.FormatInt(model.erow.row.IsFree, 10))
+			case _IsUsedPercent:
+				tmp = append(tmp, model.erow.row.IsUsedPercent)
+			case _MountedOn:
+				tmp = append(tmp, model.erow.row.MountedOn)
+			case _Time:
+				tmp = append(tmp, model.erow.row.Time)
+		}
+	}
+
+	return "\n" + strings.Join(tmp, delimiter)
 }
