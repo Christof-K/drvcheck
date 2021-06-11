@@ -63,11 +63,49 @@ func (erow *ErrRow) parseIntWrapper(value string, result *int64) {
 	}
 }
 
-// todo: zapis calosci a nie kazdego rowa osobono - bez sensu
-func (erow *ErrRow) store() []error {
+func (erow *ErrRow) _strigify() []string {
 
-	model := CsvModel{}
-	model.store(*erow)
-	
-	return model.errs
+	var tmp []string
+	helms := conf.configYaml.Csv.Header
+
+	for _, elm := range helms {
+		// todo: reflect on row field to get its name?
+		switch(elm) {
+			case _Filesystem:
+				tmp = append(tmp, erow.row.Filesystem)
+			case _Size:
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(erow.row.Size), 10))
+			case _Used:
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(erow.row.Used), 10))
+			case _Avail:
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(erow.row.Avail), 10))
+			case _Capacity:
+				tmp = append(tmp, erow.row.Capacity)
+			// --------
+			case _IsUsed:
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(erow.row.IsUsed), 10))
+			case _IsFree:
+				tmp = append(tmp, strconv.FormatInt(parseMemInt(erow.row.IsFree), 10))
+			case _IsUsedPercent:
+			// --------
+				tmp = append(tmp, erow.row.IsUsedPercent)
+			case _MountedOn:
+				tmp = append(tmp, erow.row.MountedOn)
+			case _Time:
+				tmp = append(tmp, erow.row.Time)
+			case _MemUnit:
+				tmp = append(tmp, conf.configYaml.Unit)
+		}
+	}
+
+	return tmp
 }
+
+// todo: zapis calosci a nie kazdego rowa osobono - bez sensu
+// func (erow *ErrRow) store() []error {
+
+// 	model := CsvModel{}
+// 	model.store(*erow)
+	
+// 	return model.errs
+// }

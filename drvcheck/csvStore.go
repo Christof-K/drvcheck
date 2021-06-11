@@ -3,7 +3,6 @@ package helper
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 	// "reflect"
@@ -11,7 +10,7 @@ import (
 
 type CsvModel struct {
 	errs []error
-	erow ErrRow
+	erows []ErrRow
 }
 
 type modelError struct {
@@ -23,11 +22,15 @@ func (me *modelError) Error() string {
 }
 
 
-func (model *CsvModel) store(erow ErrRow) {
+func (model *CsvModel) store() {
 
 	fmt.Println("csvStore - store!")
 
-	model.erow = erow
+	if len(model.erows) == 0 {
+		// nothing to store
+		return
+	}
+
 	config, err := GetConfig()
 
 	if err != nil {
@@ -58,7 +61,7 @@ func (model *CsvModel) store(erow ErrRow) {
 		fileContentStr, _ = BuildHeader()
 	}
 
-	fileContentStr = fileContentStr + model._strigify()
+	fileContentStr = fileContentStr + model.strigify()
 
 	write_error := os.WriteFile(filename, []byte(fileContentStr), 0777)
 	if write_error != nil {
@@ -79,43 +82,15 @@ func BuildHeader() (string, error) {
 }
 
 
-func (model *CsvModel) _strigify() string {
-	var tmp []string
 
-	conf, _ := GetConfig()
-	helms := conf.configYaml.Csv.Header
+func (model *CsvModel) strigify() string {
+	var tmp string
 
-	for _, elm := range helms {
-		// todo: reflect on row field to get its name?
-		switch(elm) {
-			case _Filesystem:
-				tmp = append(tmp, model.erow.row.Filesystem)
-			case _Size:
-				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.Size), 10))
-			case _Used:
-				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.Used), 10))
-			case _Avail:
-				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.Avail), 10))
-			case _Capacity:
-				tmp = append(tmp, model.erow.row.Capacity)
-			// --------
-			case _IsUsed:
-				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.IsUsed), 10))
-			case _IsFree:
-				tmp = append(tmp, strconv.FormatInt(parseMemInt(model.erow.row.IsFree), 10))
-			case _IsUsedPercent:
-			// --------
-				tmp = append(tmp, model.erow.row.IsUsedPercent)
-			case _MountedOn:
-				tmp = append(tmp, model.erow.row.MountedOn)
-			case _Time:
-				tmp = append(tmp, model.erow.row.Time)
-			case _MemUnit:
-				tmp = append(tmp, conf.configYaml.Unit)
-		}
+	for _, row := range model.erows {
+		tmp += "\n" + strings.Join(row._strigify(), delimiter)
 	}
 
-	return "\n" + strings.Join(tmp, delimiter)
+	return tmp
 }
 
 func parseMemInt(value int64) int64 {

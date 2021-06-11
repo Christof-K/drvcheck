@@ -32,6 +32,8 @@ func check() []error {
 	stringOutput := string(output[:])
 	lines := strings.Split(stringOutput, "\n")
 
+	model := CsvModel{}
+
 	for _, line := range lines {
 		for _, vol := range conf.configYaml.Drivers {
 			if strings.Contains(line, vol) {
@@ -45,16 +47,20 @@ func check() []error {
 				if row.errs != nil {
 					return row.errs
 				}
-				store_errs := row.store()
-				if store_errs != nil {
-					return store_errs
-				}
+				// store_errs := row.store()
+				// if store_errs != nil {
+				// 	return store_errs
+				// }
 				if row.errs != nil {
 					return row.errs
 				}
+
+				model.erows = append(model.erows, row)
 			}
 		}
 	}
+
+	model.store()
 
 	return nil
 }
