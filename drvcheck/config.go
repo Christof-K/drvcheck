@@ -1,7 +1,9 @@
 package helper
 
 import (
+	"fmt"
 	"os"
+
 	"github.com/goccy/go-yaml"
 )
 
@@ -26,15 +28,16 @@ var conf = &config{
 	configYaml: &configYaml{},
 }
 
-func GetConfig() (*config, error) {
+func GetConfig() (config, error) {
 	
 	if conf.isLoaded != true {
+		fmt.Println("Reading configuration....")
 		cyaml, err := os.ReadFile("./config.yaml")
-		if err != nil { return nil, err }
+		if err != nil { return *conf, err }
 		uerr := yaml.Unmarshal(cyaml, conf.configYaml)
-		if uerr != nil { return nil, uerr }
+		if uerr != nil { return *conf, uerr }
 		conf.isLoaded = true
 	}
 
-	return conf, nil
+	return *conf, nil
 }

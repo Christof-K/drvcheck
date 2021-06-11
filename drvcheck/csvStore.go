@@ -86,7 +86,6 @@ func (model *CsvModel) _strigify() string {
 	helms := conf.configYaml.Csv.Header
 
 	for _, elm := range helms {
-		// fmt.Println("----", elm, model.erow.row)
 		// todo: reflect on row field to get its name?
 		switch(elm) {
 			case _Filesystem:
