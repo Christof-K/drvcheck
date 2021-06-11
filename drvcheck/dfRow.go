@@ -8,12 +8,12 @@ import (
 
 type row struct {
 	Filesystem    string
-	Size          int64
-	Used          int64
-	Avail         int64
+	Size          uint64
+	Used          uint64
+	Avail         uint64
 	Capacity      string
-	IsUsed        int64
-	IsFree        int64
+	IsUsed        uint64
+	IsFree        uint64
 	IsUsedPercent string
 	MountedOn     string
 	Time          string
@@ -40,8 +40,8 @@ func (erow *ErrRow) fill(args []string) {
 	erow.row.MemUnit = conf.configYaml.Unit
 }
 
-func (erow *ErrRow) parseMemInt(value string, result *int64) {
-	res, err := strconv.ParseInt(value, 0, 64)
+func (erow *ErrRow) parseMemInt(value string, result *uint64) { // todo: reflect na polu zamiast zwracac pointer?
+	res, err := strconv.ParseUint(value, 0, 64)
 	if err != nil {
 		erow.errs = append(erow.errs, err)
 	} else {
@@ -62,11 +62,13 @@ func (erow *ErrRow) _strigify() []string {
 		}
 		refRowFieldValue := reflect.ValueOf(erow.row).FieldByName(elm)
 
-		if refRowFieldType.Type.String() == "int64" {
-			tmp = append(tmp, strconv.FormatInt(refRowFieldValue.Int(), 10))
-		} else {
-			tmp = append(tmp, refRowFieldValue.String())
+		switch refRowFieldType.Type {
+			case reflect.TypeOf((uint64)(0)):
+				tmp = append(tmp, strconv.FormatUint(refRowFieldValue.Uint(), 10))
+			default:
+				tmp = append(tmp, refRowFieldValue.String())
 		}
+
 	}
 
 	return tmp

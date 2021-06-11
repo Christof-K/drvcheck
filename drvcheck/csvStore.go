@@ -93,8 +93,8 @@ func (model *CsvModel) strigify() string {
 	return tmp
 }
 
-func _parseMemInt(value int64) int64 {
-	var result int64
+func _parseMemInt(value uint64) uint64 {
+	var result uint64
 	conf, _ := GetConfig()
 	switch (conf.configYaml.Unit) {
 		case "KB":
