@@ -2,7 +2,7 @@
 
 **Drvcheck adds ability of:**
 - custom configuration via yaml file
-- select which drives you want keep eye on (default all)
+- select which drives you want keep eye on
 - select output memory unit (from KB to JB, default GB)
 - select which columns you want to store (default all)
 - storing parsed output in CSV file (daily or continuously file, default daily).
