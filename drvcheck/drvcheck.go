@@ -23,6 +23,10 @@ func check() []error {
 	if cerr != nil {
 		return append(make([]error, 0), cerr)
 	}
+	if len(conf.configYaml.Drivers) == 0 {
+		fmt.Println("Edit config.yaml and specify drivers")
+		return nil
+	}
 	cmd := exec.Command("df", "-bk")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -38,15 +42,10 @@ func check() []error {
 
 		valid := false
 		
-		if len(conf.configYaml.Drivers) == 0 {
-			fmt.Println("Edit config.yaml and specify drivers")
-			// valid = true // jednak nie bo za duzo przypadkow
-		} else {
-			for _, vol := range conf.configYaml.Drivers {
-				if strings.Contains(line, vol) {
-					valid = true
-					break
-				}
+		for _, vol := range conf.configYaml.Drivers {
+			if strings.Contains(line, vol) {
+				valid = true
+				break
 			}
 		}
 
