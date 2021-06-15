@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"log"
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -10,7 +10,7 @@ func Run() {
 	errors := check()
 	if errors != nil {
 		for _, err := range errors {
-			log.Fatalf(err.Error())
+			fmt.Println(err.Error())
 		}
 	}
 }
@@ -34,33 +34,39 @@ func check() []error {
 
 	model := CsvModel{}
 
-	for _, line := range lines {
-		for _, vol := range conf.configYaml.Drivers {
-			if strings.Contains(line, vol) {
+	for _, line := range lines[1:] {
 
-				row := ErrRow{}
-				args := strings.Fields(line)
-				row.fill(args)
-
-				// todo: error handling refactor
-
-				if row.errs != nil {
-					return row.errs
+		valid := false
+		
+		if len(conf.configYaml.Drivers) == 0 {
+			fmt.Println("Edit config.yaml and specify drivers")
+			// valid = true // jednak nie bo za duzo przypadkow
+		} else {
+			for _, vol := range conf.configYaml.Drivers {
+				if strings.Contains(line, vol) {
+					valid = true
+					break
 				}
-				// store_errs := row.store()
-				// if store_errs != nil {
-				// 	return store_errs
-				// }
-				if row.errs != nil {
-					return row.errs
-				}
-
-				model.erows = append(model.erows, row)
 			}
 		}
+
+		if valid {
+			row := ErrRow{}
+			// args := strings.Split(line, "\t") // 
+			args := strings.Fields(line)
+			row.fill(args)
+
+			if row.errs != nil {
+				return row.errs
+			}
+
+			model.erows = append(model.erows, row)
+		}
+
 	}
 
 	model.store()
 
-	return nil
+	return model.errs
 }
+

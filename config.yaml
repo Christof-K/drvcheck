@@ -1,6 +1,9 @@
 %YAML 1.2
 ---
-drivers:
+drivers: # mounted point or device
+  #- /Volumes/Example1
+  #- /Volumes/Example2
+  
   - /Volumes/VIPER_1TB
   - /Volumes/WD01
   - /Volumes/WD02
@@ -10,7 +13,7 @@ drivers:
 unit: GB # options: KB, MB, GB, TB, PB, EB, ZB, JB
 csv: 
     mode: daily
-    dir: /Users/kk/drvcheck
+    dir: . # full path of csv storing directory, dot means current executable directory
     header:
       - MountedOn
       - Filesystem

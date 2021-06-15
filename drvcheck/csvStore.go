@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	// "reflect"
 )
 
 type CsvModel struct {
@@ -27,7 +26,7 @@ func (model *CsvModel) store() {
 	fmt.Println("csvStore - store!")
 
 	if len(model.erows) == 0 {
-		// nothing to store
+		fmt.Println("csvStore - nothing to store")
 		return
 	}
 
@@ -73,14 +72,12 @@ func (model *CsvModel) store() {
 
 var delimiter = ";"
 
-// todo: wykrywanie czy config sie zmienil na przestrzeni tego samego pliku
 func BuildHeader() (string, error) {
 	var strheader string
 	conf, err := GetConfig()
 	strheader = strheader + strings.Join(conf.configYaml.Csv.Header, delimiter)
 	return strheader, err
 }
-
 
 
 func (model *CsvModel) strigify() string {
@@ -94,25 +91,24 @@ func (model *CsvModel) strigify() string {
 }
 
 func _parseMemInt(value uint64) uint64 {
-	var result uint64
 	conf, _ := GetConfig()
 	switch (conf.configYaml.Unit) {
 		case "KB":
-			result = value
+			return value
 		case "MB":
-			result = value / 1024
+			return value / 1024
 		case "GB":
-			result = value / 1024 / 1024
+			return value / 1024 / 1024
 		case "TB":
-			result = value / 1024 / 1024 / 1024
+			return value / 1024 / 1024 / 1024
 		case "PB":
-			result = value / 1024 / 1024 / 1024 / 1024
+			return value / 1024 / 1024 / 1024 / 1024
 		case "EB":
-			result = value / 1024 / 1024 / 1024 / 1024 / 1024
+			return value / 1024 / 1024 / 1024 / 1024 / 1024
 		case "ZB":
-			result = value / 1024 / 1024 / 1024 / 1024 / 1024 / 1024
+			return value / 1024 / 1024 / 1024 / 1024 / 1024 / 1024
 		case "JB":
-			result = value / 1024 / 1024 / 1024 / 1024 / 1024 / 1024 / 1024
+			return value / 1024 / 1024 / 1024 / 1024 / 1024 / 1024 / 1024
 	}
-	return result
+	return value
 }

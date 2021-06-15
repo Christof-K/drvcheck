@@ -3,7 +3,8 @@ package helper
 import (
 	"fmt"
 	"os"
-
+	"path/filepath"
+	"github.com/kardianos/osext"
 	"github.com/goccy/go-yaml"
 )
 
@@ -32,10 +33,24 @@ func GetConfig() (config, error) {
 	
 	if conf.isLoaded != true {
 		fmt.Println("Reading configuration....")
-		cyaml, err := os.ReadFile("./config.yaml")
-		if err != nil { return *conf, err }
+		path, _ := osext.ExecutableFolder()
+		cyaml, err := os.ReadFile(filepath.Join(path, "config.yaml"))
+		if err != nil { 
+			fmt.Println(err.Error())
+			return *conf, err
+		}
 		uerr := yaml.Unmarshal(cyaml, conf.configYaml)
-		if uerr != nil { return *conf, uerr }
+		if uerr != nil {
+			fmt.Println(uerr.Error())
+			return *conf, uerr
+		}
+
+		// switch to current executable directory
+		if conf.configYaml.Csv.Dir == "." {
+			path, _ := osext.ExecutableFolder()
+			conf.configYaml.Csv.Dir = path
+		}
+
 		conf.isLoaded = true
 	}
 
