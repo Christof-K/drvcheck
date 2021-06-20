@@ -18,41 +18,56 @@ type configYaml struct {
 	}
 }
 
+type PreConfig struct {
+	overrideYamlConfigPath string
+}
+
+func (pc *PreConfig) SetYamlConfigPath(path string) {
+	pc.overrideYamlConfigPath = path
+}
+
 
 type config struct {
 	isLoaded bool
 	configYaml *configYaml
+	PreConfig *PreConfig
 }
 
-var conf = &config{
+var Conf = &config{
 	isLoaded: false,
 	configYaml: &configYaml{},
+	PreConfig: &PreConfig{},
 }
 
 func GetConfig() (config, error) {
 	
-	if conf.isLoaded != true {
+	if Conf.isLoaded != true {
 		fmt.Println("Reading configuration....")
-		path, _ := osext.ExecutableFolder()
+
+		var path string
+		if Conf.PreConfig.overrideYamlConfigPath == "" {
+			tmp_path, _ := osext.ExecutableFolder()
+			path = tmp_path
+		} else {
+			path = Conf.PreConfig.overrideYamlConfigPath
+			fmt.Println("overriding config path with", path)
+		}
+
+
 		cyaml, err := os.ReadFile(filepath.Join(path, "config.yaml"))
 		if err != nil { 
 			fmt.Println(err.Error())
-			return *conf, err
+			return *Conf, err
 		}
-		uerr := yaml.Unmarshal(cyaml, conf.configYaml)
+		uerr := yaml.Unmarshal(cyaml, Conf.configYaml)
 		if uerr != nil {
 			fmt.Println(uerr.Error())
-			return *conf, uerr
+			return *Conf, uerr
 		}
 
-		// switch to current executable directory
-		if conf.configYaml.Csv.Dir == "." {
-			path, _ := osext.ExecutableFolder()
-			conf.configYaml.Csv.Dir = path
-		}
-
-		conf.isLoaded = true
+		Conf.configYaml.Csv.Dir = path
+		Conf.isLoaded = true
 	}
 
-	return *conf, nil
+	return *Conf, nil
 }

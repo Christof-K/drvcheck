@@ -52,6 +52,7 @@ func (erow *ErrRow) parseMemInt(value string, result *uint64) { // todo: reflect
 func (erow *ErrRow) _strigify() []string {
 
 	var tmp []string
+	conf, _ := GetConfig()
 	helms := conf.configYaml.Csv.Header
 
 	for _, elm := range helms {

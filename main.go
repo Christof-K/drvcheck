@@ -3,8 +3,7 @@ package main
 import (
 	helper "drvcheck/drvcheck"
 	"fmt"
-	// "fmt"
-	// "github.com/goccy/go-yaml"
+	"os"
 )
 
 func main() {
@@ -15,8 +14,24 @@ func main() {
 			fmt.Println("Panic", panic_err)
 		}
 	}()
-	// todo: executable?
-	// todo: http://golang.org.pl/lang/08_oop.html
-	helper.Run()
+
+
+	var args []string
+	args = os.Args[1:]
+
+	fmt.Println(args)
+
+	if len(args) == 0 {
+		helper.Run()
+	} else {
+		for _, arg := range args {
+			switch(arg) {
+				case "dev":
+					helper.Conf.PreConfig.SetYamlConfigPath(".")
+				// default:
+			}
+			helper.Run()
+		}
+	}
 
 }
