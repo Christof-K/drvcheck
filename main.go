@@ -2,9 +2,14 @@ package main
 
 import (
 	helper "drvcheck/drvcheck"
+	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
+
+const MODE_EXEC = "exec"
+const MODE_DEV = "dev"
 
 func main() {
 
@@ -15,22 +20,38 @@ func main() {
 		}
 	}()
 
+	flag_mode := flag.String("mode", "exec", "Mode exec or dev (override config path)")
+	flag.Parse()
 
+
+	switch *flag_mode {
+		case MODE_DEV:
+			helper.Conf.PreConfig.SetYamlConfigPath(".")
+		// case MODE_EXEC: nothing
+	}
+
+
+	// get args params skipping flags
 	var args []string
-	args = os.Args[1:]
-
-	fmt.Println(args)
+	for _, arg := range os.Args[1:] {
+		if strings.Split(arg, "")[0] != "-" {
+			args = append(args, arg)
+		}
+	}
 
 	if len(args) == 0 {
 		helper.Run()
 	} else {
 		for _, arg := range args {
-			switch(arg) {
-				case "dev":
-					helper.Conf.PreConfig.SetYamlConfigPath(".")
-				// default:
+			if strings.Split(arg, "")[0] == "-" {
+				continue // skip flags
 			}
-			helper.Run()
+			switch(arg) {
+				case "interactive":
+					helper.RunInteractive()
+				default:
+					helper.Run()
+			}
 		}
 	}
 

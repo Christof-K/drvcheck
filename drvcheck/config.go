@@ -5,17 +5,19 @@ import (
 	"os"
 	"path/filepath"
 	"github.com/kardianos/osext"
-	"github.com/goccy/go-yaml"
+	"gopkg.in/yaml.v2"
 )
 
 type configYaml struct {
-	Drivers []string `yaml:",flow"`
-	Unit string
-	Csv struct {
-		Mode string
-		Dir string
-		Header []string `yaml:",flow"`
-	}
+	Drivers []string `yaml:"drivers,flow"`
+	Unit string `yaml:"unit"`
+	Csv CsvStruct `yaml:"csv"`
+}
+
+type CsvStruct struct {
+	Mode string `yaml:"mode"`
+	Dir string `yaml:"dir"`
+	Header []string `yaml:"header,flow"`
 }
 
 type PreConfig struct {
@@ -59,7 +61,9 @@ func GetConfig() (config, error) {
 			fmt.Println(err.Error())
 			return *Conf, err
 		}
+		
 		uerr := yaml.Unmarshal(cyaml, Conf.configYaml)
+
 		if uerr != nil {
 			fmt.Println(uerr.Error())
 			return *Conf, uerr

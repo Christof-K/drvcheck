@@ -19,6 +19,8 @@ type rowHandler func()
 
 func check() []error {
 
+	fmt.Println("Run check...")
+
 	conf, cerr := GetConfig()
 	if cerr != nil {
 		return append(make([]error, 0), cerr)

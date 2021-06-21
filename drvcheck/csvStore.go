@@ -37,8 +37,7 @@ func (model *CsvModel) store() {
 		return
 	}
 
-	directory := config.configYaml.Csv.Dir
-	filename := directory + "/drvcheck"
+	filename := config.configYaml.Csv.Dir + "/drvcheck"
 
 	// todo: valid in config.go
 	if config.configYaml.Csv.Mode == "daily" {
