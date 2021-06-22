@@ -58,7 +58,7 @@ func (erow *ErrRow) _strigify() []string {
 	for _, elm := range helms {
 
 		refRowFieldType, found := reflect.TypeOf(erow.row).FieldByName(elm)
-		if found == false {
+		if !found {
 			continue // todo: err?
 		}
 		refRowFieldValue := reflect.ValueOf(erow.row).FieldByName(elm)

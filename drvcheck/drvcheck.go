@@ -8,14 +8,10 @@ import (
 
 func Run() {
 	errors := check()
-	if errors != nil {
-		for _, err := range errors {
-			fmt.Println(err.Error())
-		}
+	for _, err := range errors {
+		fmt.Println(err.Error())
 	}
 }
-
-type rowHandler func()
 
 func check() []error {
 
