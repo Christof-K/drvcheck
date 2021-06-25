@@ -37,12 +37,24 @@ func keyBindingSetup(gui *gocui.Gui) []error {
 	if err != nil { errs = append(errs, err) }
 
 	// navigate
-	// switching tabs
+	err2 := gui.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		delms.selectNext()
+		return nil
+	})
+	if err2 != nil { errs = append(errs, err2) }
+
+	err3 := gui.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		delms.selectPrev()
+		return nil
+	})
+	if err3 != nil { errs = append(errs, err3) }
+
 
 	return errs
 }
 
 const fontRed = "\x1b[0;31m"
+var initiate = true
 
 func mainLayout(gui *gocui.Gui) error {
 	if view, err := gui.SetView("main", 2, 2, 60, 20); err != nil {
@@ -53,9 +65,10 @@ func mainLayout(gui *gocui.Gui) error {
 		fmt.Fprintln(view, fontRed + "Drvcheck")
 		fmt.Fprintln(view, "\nChoose drive:")
 
-		// todo: drivers listed from config
-		delms := driveElms{}
-		delms.initDriveElms()
+		if initiate {
+			delms.initDriveElms()
+			initiate = false
+		}
 
 		for _, delm := range delms.elms {
 			var displayName string
@@ -72,10 +85,12 @@ func mainLayout(gui *gocui.Gui) error {
 	return nil
 }
 
-
+var delms driveElms
 type driveElms struct {
 	elms []driveElm
 }
+
+
 
 func (des *driveElms) initDriveElms() {
 	conf, _ := GetConfig()
@@ -105,11 +120,43 @@ func (des *driveElms) getSelected() driveElm {
 }
 
 func (de *driveElms) selectNext() {
-	// todo
+	
+	hitNext := false
+	for _, elm := range de.elms {
+		if hitNext {
+			elm.selected = true
+			hitNext = false
+			break	
+		}
+
+		if elm.selected {
+			elm.selected = false
+			hitNext = true
+			continue
+		} 
+	}
+
+	if hitNext {
+		de.elms[0].selected = true
+	}
+
 }
 
 func (de *driveElms) selectPrev() {
-	// todo
+	hitKey := 0
+	for k, elm := range de.elms {
+
+		if elm.selected {
+			elm.selected = false
+			hitKey = k - 1
+			if hitKey < 0 {
+				hitKey = len(de.elms) - 1
+			}
+			break
+		} 
+	}
+
+	de.elms[hitKey].selected = true
 }
 
 
