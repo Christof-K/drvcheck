@@ -43,7 +43,7 @@ var Conf = &config{
 
 func GetConfig() (config, error) {
 	
-	if Conf.isLoaded != true {
+	if !Conf.isLoaded {
 		fmt.Println("Reading configuration....")
 
 		var path string
