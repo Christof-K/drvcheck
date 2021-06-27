@@ -8,7 +8,7 @@
 - storing parsed output in CSV file (daily or continuously file, default daily).
 
 # Run executable
-Download latest realease package from [here](https://github.com/Sojtin/drvcheck/releases "here").
+Download latest realease package from [here](https://github.com/Xrzys/go-drvcheck/releases "here").
 It contains `drvcheck` executable and `config.yaml` configuration file which have to be at the same location as executable.
 
 Unpack the package and go to drvcheck directory, from there:
@@ -35,9 +35,6 @@ where `/full/path/to/drvcheck/` is full path to drvcheck directory.
 
 More about crontab [here](https://man7.org/linux/man-pages/man5/crontab.5.html "here").
 
-
-## Licence
-**Drvcheck** is under "Do What The F*ck You Want To Public License" (wtfpl) which is self explanatory.
 
 
 ## TODO
