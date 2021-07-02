@@ -8,7 +8,7 @@
 - storing parsed output in CSV file (daily or continuously file, default daily).
 
 # Run executable
-Download latest realease package from [here](https://github.com/Xrzys/go-drvcheck/releases "here").
+Download latest realease package from [here](https://github.com/Xrzys/drvcheck/releases "here").
 It contains `drvcheck` executable and `config.yaml` configuration file which have to be at the same location as executable.
 
 Unpack the package and go to drvcheck directory, from there:

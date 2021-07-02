@@ -20,6 +20,9 @@ func (me *modelError) Error() string {
 	return me.err
 }
 
+func (model *CsvModel) read(period string) {
+	// todo: odczyt danych zapisanych w csv
+}
 
 func (model *CsvModel) store() {
 
