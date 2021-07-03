@@ -3,21 +3,65 @@ package helper
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
-	"github.com/jroimartin/gocui"
+
 	"github.com/guptarohit/asciigraph"
+	"github.com/jroimartin/gocui"
 )
 
-const fontRed = "\x1b[0;31m"
 const defaultDataPeriodDays = 20
 
+
+//-------- STAT TYPE WIDGET --------//
+var stw StatTypeWidget
+type StatTypeWidget struct {
+	name string
+	x, y, w, h int
+	types []StatTypeWidgetType
+}
+
+type StatTypeWidgetType struct {
+	name string
+	active bool
+}
+
+func (_stw *StatTypeWidget) Layout(g *gocui.Gui) error {
+
+	view, err := g.SetView(_stw.name, _stw.x, _stw.y, _stw.x + _stw.w, _stw.y + _stw.h)
+	if err != nil && err != gocui.ErrUnknownView {
+		return err
+	}
+	view.Clear()
+	view.Title = "Stat type (use TAB to switch)"
+
+	var nameString []string
+	for _, t := range _stw.types {
+		if t.active {
+			nameString = append(nameString, "*" + t.name)
+		} else {
+			nameString = append(nameString, t.name)
+		}
+	}
+	fmt.Fprint(view, strings.Join(nameString, " ∙ "))
+	return nil
+}
+
+func (_stw *StatTypeWidget) getActiveType() StatTypeWidgetType {
+	activeType := _stw.types[0]
+	for _, t := range _stw.types {
+		if t.active {
+			activeType = t
+			break
+		}
+	}
+	return activeType
+}
 
 //-------- DRIVE STAT WIDGET --------//
 type DriveStatWidget struct {
 	name string
-	x, y int
-	w    int
-	h    int
+	x, y, w, h int
 }
 
 func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
@@ -36,19 +80,28 @@ func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
 	
 	fmt.Fprintln(view, "\n")
 
-	var used []float64
 
+
+	var graphData []float64
+
+	// todo: reflection?
 	for _, r := range elm.data {
-		used = append(used, float64(r.Used))
-		// r.Used, r.MemUnit, r.Capacity, r.Size
+		var val uint64
+		switch stw.getActiveType().name {
+			case "Used":
+				val = r.Used
+			case "Size":
+				val = r.Size
+			case "Avail":
+				val = r.Avail
+		}
+		graphData = append(graphData, float64(val))
 	}
 	
-	if len(used) > 0 {
-		graph := asciigraph.Plot(used)
+	if len(graphData) > 0 {
+		graph := asciigraph.Plot(graphData)
 		fmt.Fprintln(view, graph)
 	}
-
-	// todo draw chart
 
 	return nil
 }
@@ -64,9 +117,7 @@ type driveElm struct {
 
 type DriveSelectorWidget struct {
 	name string
-	x, y int
-	w    int
-	h    int
+	x, y, w, h int
 }
 
 var delms driveElms
@@ -190,10 +241,24 @@ func RunInteractive() {
 		panic(err)
 	}
 	defer g.Close()
-	
+
+
 	dsw := &DriveSelectorWidget{"dsw", 5, 5, 35, 15}
-	dstatw := &DriveStatWidget{"dstatw", 40, 5, 50, 15}
-	g.SetManager(dsw, dstatw)
+	dstatw := &DriveStatWidget{"dstatw", 40, 5, 50, 13}
+
+	stw = StatTypeWidget{
+		name: "stw",
+		x: 40,
+		y: 18,
+		w: 50,
+		h: 2,
+	}
+	stw_names := []string{"Size", "Used", "Avail"}
+	for k, name := range stw_names {
+		stw.types = append(stw.types, StatTypeWidgetType{name, (k==0)})
+	}
+
+	g.SetManager(dsw, dstatw, &stw)
 
 	errs := keyBindingSetup(g)
 	if len(errs) > 0 {
@@ -236,6 +301,22 @@ func keyBindingSetup(gui *gocui.Gui) []error {
 	if err3 != nil {
 		errs = append(errs, err3)
 	}
+
+	gui.SetKeybinding("", gocui.KeyTab, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		key := 0
+		for k, t := range stw.types {
+			if t.active {
+				stw.types[k].active = false
+				key = k + 1
+				if key > len(stw.types) - 1 {
+					key = 0
+				}
+				break
+			}
+		}
+		stw.types[key].active = true
+		return nil
+	})
 
 	return errs
 }

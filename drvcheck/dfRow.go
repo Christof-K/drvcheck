@@ -93,7 +93,6 @@ func (erow *ErrRow) _strigify() []string {
 			default:
 				tmp = append(tmp, refRowFieldValue.String())
 		}
-
 	}
 
 	return tmp
