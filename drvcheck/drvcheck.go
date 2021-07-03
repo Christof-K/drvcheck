@@ -34,7 +34,7 @@ func check() []error {
 	stringOutput := string(output[:])
 	lines := strings.Split(stringOutput, "\n")
 
-	model := CsvModel{}
+	model := GetCsvModelInstance()
 
 	for _, line := range lines[1:] {
 
@@ -51,7 +51,7 @@ func check() []error {
 			row := ErrRow{}
 			// args := strings.Split(line, "\t") // 
 			args := strings.Fields(line)
-			row.fill(args)
+			row.dfFill(args)
 
 			if row.errs != nil {
 				return row.errs

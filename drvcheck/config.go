@@ -69,7 +69,7 @@ func GetConfig() (config, error) {
 			return *Conf, uerr
 		}
 
-		Conf.configYaml.Csv.Dir = path
+		// Conf.configYaml.Csv.Dir = path
 		Conf.isLoaded = true
 	}
 

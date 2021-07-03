@@ -2,11 +2,13 @@ package helper
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/jroimartin/gocui"
 )
 
 const fontRed = "\x1b[0;31m"
+const defaultDataPeriodDays = 3
 
 
 //-------- DRIVE STAT WIDGET --------//
@@ -24,12 +26,14 @@ func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
 	}
 	view.Clear()
 
-	fmt.Fprintln(view, "Content")
-	fmt.Fprintln(view, "todo: stat data chart")
+	elm := delms.getSelected()
+	fmt.Fprintln(view, "Stats of " + elm.name)
 
-	// todo -------
-	// elm := delms.getSelected()
-	// elm.used ....
+
+	for _, r := range elm.data {
+		// todo: przeliczanie do jednej jednostki... (na daily plikach moze byc roznica)
+		fmt.Fprintln(view, r.IsUsedPercent, r.IsUsed, r.IsFree, r.Used, r.MemUnit, r.Capacity, r.Size)
+	}
 
 	// todo draw chart
 
@@ -42,7 +46,7 @@ func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
 type driveElm struct {
 	selected bool
 	name     string
-	used     []string
+	data     []row
 }
 
 type DriveSelectorWidget struct {
@@ -59,17 +63,25 @@ type driveElms struct {
 }
 
 func (des *driveElms) initDriveElms() {
+	
 	conf, _ := GetConfig()
+	csvModel := GetCsvModelInstance()
+	rows := csvModel.read(time.Now().Local().AddDate(0, 0, defaultDataPeriodDays * -1))
 
 	selb := true
 	des.elms = nil
 
+
 	for _, elm := range conf.configYaml.Drivers {
-		// var used []string
+		
+		var elmRows []row
+		for _, r := range rows {
+			if r.Filesystem == elm || r.MountedOn == elm {
+				elmRows = append(elmRows, r)
+			}
+		}
 
-		// todo: get data
-
-		tmp := driveElm{selb, elm, []string{""}} // todo used data
+		tmp := driveElm{selb, elm, elmRows}
 		des.elms = append(des.elms, tmp)
 		selb = false
 	}
@@ -158,13 +170,13 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 //-------- /DRIVE SELECTOR WIDGET --------//
 
 func RunInteractive() {
-
+	
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		panic(err)
 	}
 	defer g.Close()
-
+	
 	dsw := &DriveSelectorWidget{"dsw", 5, 5, 35, 15}
 	dstatw := &DriveStatWidget{"dstatw", 40, 5, 50, 15}
 	g.SetManager(dsw, dstatw)
@@ -175,8 +187,11 @@ func RunInteractive() {
 	}
 
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+		fmt.Println("gocui: main loop panic err")
 		panic(err)
 	}
+
+	
 
 }
 

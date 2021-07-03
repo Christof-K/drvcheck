@@ -3,7 +3,7 @@ package main
 import (
 	helper "drvcheck/drvcheck"
 	"flag"
-	"fmt"
+	// "fmt"
 	"os"
 	"strings"
 )
@@ -13,12 +13,12 @@ const MODE_DEV = "dev"
 
 func main() {
 
-	defer func() {
-		panic_err := recover()
-		if panic_err != nil {
-			fmt.Println("Panic", panic_err)
-		}
-	}()
+	// defer func() {
+	// 	panic_err := recover()
+	// 	if panic_err != nil {
+	// 		fmt.Println("Panic", panic_err)
+	// 	}
+	// }()
 
 	flag_mode := flag.String("mode", "exec", "Mode exec or dev (override config path)")
 	flag.Parse()

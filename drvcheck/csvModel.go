@@ -4,8 +4,23 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
+
+var lock = &sync.Mutex{}
+var csvModelInstance *CsvModel
+
+func GetCsvModelInstance() *CsvModel {
+	if csvModelInstance == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if csvModelInstance == nil {
+			csvModelInstance = &CsvModel{}
+		}
+	}
+	return csvModelInstance
+}
 
 type CsvModel struct {
 	errs []error
@@ -20,9 +35,79 @@ func (me *modelError) Error() string {
 	return me.err
 }
 
-func (model *CsvModel) read(period string) {
-	// todo: odczyt danych zapisanych w csv
+func (model *CsvModel) read(dateFrom time.Time) []row {
+
+	var rows []row
+
+	dateUnitNow := time.Now().Local().Unix()
+
+	if dateFrom.Local().Unix() > dateUnitNow {
+		panic("dateFrom cannot be after current time")
+	}
+
+	config, _ := GetConfig()
+	if config.configYaml.Csv.Mode == "daily" {
+		for {
+			tmp, _ := model.getFile(dateFrom.Local())
+			rows = append(rows, model.rowsFromCsvFile(tmp)...)
+			
+			dateFrom = dateFrom.AddDate(0, 0, 1)
+			if dateFrom.Local().Unix() >= dateUnitNow {
+				break
+			}
+		}
+
+	} else {
+		tmp, _ := model.getFile(time.Now().Local())
+		rows = model.rowsFromCsvFile(tmp)
+	}
+
+	return rows
 }
+
+
+func (model *CsvModel) rowsFromCsvFile(content string) []row {
+
+	var rows []row
+	lines := strings.Split(content, "\n")
+	header := strings.Split(lines[0], delimiter)
+	fileData := lines[1:]
+
+
+	for _, line := range fileData {
+		row := ErrRow{}
+		args := strings.Split(line, delimiter)
+		if len(args) == 0 {
+			continue
+		}
+
+		for hk, hitem := range header {
+			switch hitem {
+				case "MountedOn":
+					row.row.MountedOn = args[hk]
+				case "Filesystem":
+					row.row.Filesystem = args[hk]
+				case "Capacity":
+					row.row.Capacity = args[hk]
+				case "Size":
+					row.parseMemInt(args[hk], &row.row.Size)
+				case "Used":
+					row.parseMemInt(args[hk], &row.row.Used)
+				case "Avail":
+					row.parseMemInt(args[hk], &row.row.Avail)
+				case "Time":
+					row.row.Time = args[hk]
+				case "MemUnit":
+					row.row.MemUnit = args[hk]
+			}
+		}
+
+		rows = append(rows, row.row)
+	}
+
+	return rows
+}
+
 
 func (model *CsvModel) store() {
 
@@ -33,30 +118,7 @@ func (model *CsvModel) store() {
 		return
 	}
 
-	config, err := GetConfig()
-
-	if err != nil {
-		model.errs = append(model.errs, err)
-		return
-	}
-
-	filename := config.configYaml.Csv.Dir + "/drvcheck"
-
-	// todo: valid in config.go
-	if config.configYaml.Csv.Mode == "daily" {
-		filename = filename + "_" + time.Now().Local().Format("2006-01-02") + ".csv"
-	} else if config.configYaml.Csv.Mode == "solid" {
-		filename = filename + ".csv"
-	} else {
-		var err error = &modelError{
-			err: "Invalid CSV mode! (valid modes: daily, solid) | given: " + config.configYaml.Csv.Mode,
-		}
-		model.errs = append(model.errs, err)
-		return
-	}
-
-	fileContentByte, _ := os.ReadFile(filename)
-	fileContentStr := string(fileContentByte)
+	fileContentStr, filename := model.getFile(time.Now().Local())
 
 	if fileContentStr == "" {
 		fileContentStr, _ = BuildHeader()
@@ -69,6 +131,41 @@ func (model *CsvModel) store() {
 		model.errs = append(model.errs, write_error)
 		return
 	}
+}
+
+
+func (model *CsvModel) getFile(dailyFrom time.Time) (string, string) {
+	config, err := GetConfig()
+
+	if err != nil {
+		model.errs = append(model.errs, err)
+		return "", ""
+	}
+
+	filename := config.configYaml.Csv.Dir + "/drvcheck"
+
+	// todo: valid in config.go
+	if config.configYaml.Csv.Mode == "daily" {
+		filename = filename + "_" + dailyFrom.Format("2006-01-02") + ".csv"
+		// fmt.Println("daily filename read | " + filename)
+	} else if config.configYaml.Csv.Mode == "solid" {
+		filename = filename + ".csv"
+	} else {
+		var err error = &modelError{
+			err: "Invalid CSV mode! (valid modes: daily, solid) | given: " + config.configYaml.Csv.Mode,
+		}
+		model.errs = append(model.errs, err)
+		return "", filename
+	}
+
+	fileContentByte, err := os.ReadFile(filename)
+
+	if err != nil {
+		model.errs = append(model.errs, err)
+	}
+
+	fileContentStr := string(fileContentByte)
+	return fileContentStr, filename
 }
 
 
