@@ -1,11 +1,13 @@
-**Drvcheck** is golang written wrapper around unix `df` command which output drives memory status.
+**Drvcheck** is golang written wrapper around unix `df` command which store drives statistics.
 
 **Drvcheck adds ability of:**
+- storing parsed output in CSV file (daily or continuously file, default daily).
 - custom configuration via yaml file
 - select which drives you want keep eye on
 - select output memory unit (from KB to JB, default GB)
 - select which columns you want to store (default all)
-- storing parsed output in CSV file (daily or continuously file, default daily).
+- interactive mode with charts (in progress)
+
 
 # Run executable
 Download latest realease package from [here](https://github.com/Xrzys/drvcheck/releases "here").
@@ -39,8 +41,7 @@ More about crontab [here](https://man7.org/linux/man-pages/man5/crontab.5.html "
 
 ## TODO
 - CLI interactive mode with charts
-- Alerts of some kind
-- DB storing
+
 
 
 

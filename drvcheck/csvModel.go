@@ -3,6 +3,7 @@ package helper
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -67,8 +68,13 @@ func (model *CsvModel) read(dateFrom time.Time) []row {
 
 
 func (model *CsvModel) rowsFromCsvFile(content string) []row {
-
+	
 	var rows []row
+
+	if content == "" {
+		return rows
+	}
+
 	lines := strings.Split(content, "\n")
 	header := strings.Split(lines[0], delimiter)
 	fileData := lines[1:]
@@ -81,6 +87,7 @@ func (model *CsvModel) rowsFromCsvFile(content string) []row {
 			continue
 		}
 
+		
 		for hk, hitem := range header {
 			switch hitem {
 				case "MountedOn":
@@ -90,11 +97,14 @@ func (model *CsvModel) rowsFromCsvFile(content string) []row {
 				case "Capacity":
 					row.row.Capacity = args[hk]
 				case "Size":
-					row.parseMemInt(args[hk], &row.row.Size)
+					v, _ := strconv.ParseUint(args[hk], 0, 64)
+					row.row.Size = _parseMemInt(v)
 				case "Used":
-					row.parseMemInt(args[hk], &row.row.Used)
+					v, _ := strconv.ParseUint(args[hk], 0, 64)
+					row.row.Used = _parseMemInt(v)
 				case "Avail":
-					row.parseMemInt(args[hk], &row.row.Avail)
+					v, _ := strconv.ParseUint(args[hk], 0, 64)
+					row.row.Avail = _parseMemInt(v)
 				case "Time":
 					row.row.Time = args[hk]
 				case "MemUnit":
@@ -102,8 +112,12 @@ func (model *CsvModel) rowsFromCsvFile(content string) []row {
 			}
 		}
 
+		
+
 		rows = append(rows, row.row)
 	}
+
+	
 
 	return rows
 }

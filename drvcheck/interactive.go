@@ -2,13 +2,14 @@ package helper
 
 import (
 	"fmt"
+	"strconv"
 	"time"
-
 	"github.com/jroimartin/gocui"
+	"github.com/guptarohit/asciigraph"
 )
 
 const fontRed = "\x1b[0;31m"
-const defaultDataPeriodDays = 3
+const defaultDataPeriodDays = 20
 
 
 //-------- DRIVE STAT WIDGET --------//
@@ -20,19 +21,31 @@ type DriveStatWidget struct {
 }
 
 func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
+
 	view, err := g.SetView(dstat.name, dstat.x, dstat.y, dstat.x + dstat.w, dstat.y + dstat.h)
 	if err != nil && err != gocui.ErrUnknownView {
 		return err
 	}
 	view.Clear()
 
-	elm := delms.getSelected()
-	fmt.Fprintln(view, "Stats of " + elm.name)
+	conf, _ := GetConfig()
 
+	elm := delms.getSelected()
+	view.Title = "Stats of " + elm.name + " | " + strconv.FormatUint(defaultDataPeriodDays, 10) + " days | " + conf.configYaml.Unit
+	// view.BgColor = gocui.ColorBlue
+	
+	fmt.Fprintln(view, "\n")
+
+	var used []float64
 
 	for _, r := range elm.data {
-		// todo: przeliczanie do jednej jednostki... (na daily plikach moze byc roznica)
-		fmt.Fprintln(view, r.IsUsedPercent, r.IsUsed, r.IsFree, r.Used, r.MemUnit, r.Capacity, r.Size)
+		used = append(used, float64(r.Used))
+		// r.Used, r.MemUnit, r.Capacity, r.Size
+	}
+	
+	if len(used) > 0 {
+		graph := asciigraph.Plot(used)
+		fmt.Fprintln(view, graph)
 	}
 
 	// todo draw chart
@@ -144,9 +157,10 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 		return err
 	}
 	view.Clear()
+	view.FgColor = gocui.ColorWhite
 
-	fmt.Fprintln(view, fontRed+"Drvcheck")
-	fmt.Fprintln(view, "\nChoose drive:")
+	view.Title = "Choose drive"
+	fmt.Fprintln(view, "\n")
 
 	if ds_initiate {
 		delms.initDriveElms()

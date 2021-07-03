@@ -64,7 +64,7 @@ func (erow *ErrRow) _fill(filesystem, size, used, avail, capacity, mountedOn, ti
 }
 
 
-func (erow *ErrRow) parseMemInt(value string, result *uint64) { // todo: reflect na polu zamiast zwracac pointer?
+func (erow *ErrRow) parseMemInt(value string, result *uint64) {
 	res, err := strconv.ParseUint(value, 0, 64)
 	if err != nil {
 		erow.errs = append(erow.errs, err)
