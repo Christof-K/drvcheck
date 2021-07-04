@@ -40,7 +40,7 @@ func (_stw *StatTypeWidget) Layout(g *gocui.Gui) error {
 		if t.active {
 			nameString = append(nameString, "*" + t.name)
 		} else {
-			nameString = append(nameString, t.name)
+			nameString = append(nameString, " " + t.name)
 		}
 	}
 	fmt.Fprint(view, strings.Join(nameString, " ∙ "))
@@ -72,34 +72,28 @@ func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
 	}
 	view.Clear()
 
-	conf, _ := GetConfig()
+	// conf, _ := GetConfig()
 
 	elm := delms.getSelected()
-	view.Title = "Stats of " + elm.name + " | " + strconv.FormatUint(defaultDataPeriodDays, 10) + " days | " + conf.configYaml.Unit
+	view.Title = "Stats of " + elm.name + " | last " + strconv.FormatUint(defaultDataPeriodDays, 10) + " days"// + conf.configYaml.Unit
 	// view.BgColor = gocui.ColorBlue
 	
 	fmt.Fprintln(view, "\n")
 
 
-
 	var graphData []float64
-
-	// todo: reflection?
 	for _, r := range elm.data {
-		var val uint64
-		switch stw.getActiveType().name {
-			case "Used":
-				val = r.Used
-			case "Size":
-				val = r.Size
-			case "Avail":
-				val = r.Avail
-		}
-		graphData = append(graphData, float64(val))
+		graphData = append(graphData, float64(r.Used * 100 / r.Size))
 	}
 	
 	if len(graphData) > 0 {
-		graph := asciigraph.Plot(graphData)
+		graph := asciigraph.Plot(
+			graphData,
+			asciigraph.Height(12),
+			asciigraph.Width(93),
+			asciigraph.Caption("Percent of usage"),
+			asciigraph.Precision(0),
+		)
 		fmt.Fprintln(view, graph)
 	}
 
@@ -243,8 +237,8 @@ func RunInteractive() {
 	defer g.Close()
 
 
-	dsw := &DriveSelectorWidget{"dsw", 5, 5, 35, 15}
-	dstatw := &DriveStatWidget{"dstatw", 40, 5, 50, 13}
+	dsw := &DriveSelectorWidget{"dsw", 5, 5, 35, 16}
+	dstatw := &DriveStatWidget{"dstatw", 40, 5, 100, 16}
 
 	stw = StatTypeWidget{
 		name: "stw",
@@ -253,12 +247,16 @@ func RunInteractive() {
 		w: 50,
 		h: 2,
 	}
-	stw_names := []string{"Size", "Used", "Avail"}
+	stw_names := []string{"Used", "Avail"}
 	for k, name := range stw_names {
 		stw.types = append(stw.types, StatTypeWidgetType{name, (k==0)})
 	}
 
-	g.SetManager(dsw, dstatw, &stw)
+	g.SetManager(
+		dsw, // todo: vertical scrollable
+		dstatw,
+		// &stw, // disabled - todo graph, text (scrollable, goto date)
+	)
 
 	errs := keyBindingSetup(g)
 	if len(errs) > 0 {
