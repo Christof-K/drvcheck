@@ -1,4 +1,4 @@
-package helper
+package drvcheck
 
 import (
 	"fmt"
@@ -36,9 +36,9 @@ func (me *modelError) Error() string {
 	return me.err
 }
 
-func (model *CsvModel) read(dateFrom time.Time) []row {
+func (model *CsvModel) Read(dateFrom time.Time) []Row {
 
-	var rows []row
+	var rows []Row
 
 	dateUnitNow := time.Now().Local().Unix()
 
@@ -47,7 +47,7 @@ func (model *CsvModel) read(dateFrom time.Time) []row {
 	}
 
 	config, _ := GetConfig()
-	if config.configYaml.Csv.Mode == "daily" {
+	if config.ConfigYaml.Csv.Mode == "daily" {
 		for {
 			tmp, _ := model.getFile(dateFrom.Local())
 			rows = append(rows, model.rowsFromCsvFile(tmp)...)
@@ -67,9 +67,9 @@ func (model *CsvModel) read(dateFrom time.Time) []row {
 }
 
 
-func (model *CsvModel) rowsFromCsvFile(content string) []row {
+func (model *CsvModel) rowsFromCsvFile(content string) []Row {
 	
-	var rows []row
+	var rows []Row
 
 	if content == "" {
 		return rows
@@ -156,17 +156,17 @@ func (model *CsvModel) getFile(dailyFrom time.Time) (string, string) {
 		return "", ""
 	}
 
-	filename := config.configYaml.Csv.Dir + "/drvcheck"
+	filename := config.ConfigYaml.Csv.Dir + "/drvcheck"
 
 	// todo: valid in config.go
-	if config.configYaml.Csv.Mode == "daily" {
+	if config.ConfigYaml.Csv.Mode == "daily" {
 		filename = filename + "_" + dailyFrom.Format("2006-01-02") + ".csv"
 		// fmt.Println("daily filename read | " + filename)
-	} else if config.configYaml.Csv.Mode == "solid" {
+	} else if config.ConfigYaml.Csv.Mode == "solid" {
 		filename = filename + ".csv"
 	} else {
 		var err error = &modelError{
-			err: "Invalid CSV mode! (valid modes: daily, solid) | given: " + config.configYaml.Csv.Mode,
+			err: "Invalid CSV mode! (valid modes: daily, solid) | given: " + config.ConfigYaml.Csv.Mode,
 		}
 		model.errs = append(model.errs, err)
 		return "", filename
@@ -188,7 +188,7 @@ var delimiter = ";"
 func BuildHeader() (string, error) {
 	var strheader string
 	conf, err := GetConfig()
-	strheader = strheader + strings.Join(conf.configYaml.Csv.Header, delimiter)
+	strheader = strheader + strings.Join(conf.ConfigYaml.Csv.Header, delimiter)
 	return strheader, err
 }
 
@@ -205,7 +205,7 @@ func (model *CsvModel) strigify() string {
 
 func _parseMemInt(value uint64) uint64 {
 	conf, _ := GetConfig()
-	switch (conf.configYaml.Unit) {
+	switch (conf.ConfigYaml.Unit) {
 		case "KB":
 			return value
 		case "MB":

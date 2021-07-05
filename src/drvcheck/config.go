@@ -1,4 +1,4 @@
-package helper
+package drvcheck
 
 import (
 	"fmt"
@@ -29,19 +29,19 @@ func (pc *PreConfig) SetYamlConfigPath(path string) {
 }
 
 
-type config struct {
+type Config struct {
 	isLoaded bool
-	configYaml *configYaml
+	ConfigYaml *configYaml
 	PreConfig *PreConfig
 }
 
-var Conf = &config{
+var Conf = &Config{
 	isLoaded: false,
-	configYaml: &configYaml{},
+	ConfigYaml: &configYaml{},
 	PreConfig: &PreConfig{},
 }
 
-func GetConfig() (config, error) {
+func GetConfig() (Config, error) {
 	
 	if !Conf.isLoaded {
 		fmt.Println("Reading configuration....")
@@ -62,7 +62,7 @@ func GetConfig() (config, error) {
 			return *Conf, err
 		}
 		
-		uerr := yaml.Unmarshal(cyaml, Conf.configYaml)
+		uerr := yaml.Unmarshal(cyaml, Conf.ConfigYaml)
 
 		if uerr != nil {
 			fmt.Println(uerr.Error())

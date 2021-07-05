@@ -1,9 +1,9 @@
 package main
 
 import (
-	helper "drvcheck/drvcheck"
+	"drvcheck/src/drvcheck"
+	"drvcheck/src/interactive"
 	"flag"
-	// "fmt"
 	"os"
 	"strings"
 )
@@ -26,7 +26,7 @@ func main() {
 
 	switch *flag_mode {
 		case MODE_DEV:
-			helper.Conf.PreConfig.SetYamlConfigPath(".")
+			drvcheck.Conf.PreConfig.SetYamlConfigPath(".")
 		// case MODE_EXEC: nothing
 	}
 
@@ -40,7 +40,7 @@ func main() {
 	}
 
 	if len(args) == 0 {
-		helper.Run()
+		drvcheck.Run()
 	} else {
 		for _, arg := range args {
 			if strings.Split(arg, "")[0] == "-" {
@@ -48,9 +48,9 @@ func main() {
 			}
 			switch(arg) {
 				case "interactive":
-					helper.RunInteractive()
+					interactive.Run()
 				default:
-					helper.Run()
+					drvcheck.Run()
 			}
 		}
 	}

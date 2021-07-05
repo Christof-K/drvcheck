@@ -1,4 +1,4 @@
-package helper
+package drvcheck
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type row struct {
+type Row struct {
 	Filesystem    string
 	Size          uint64
 	Used          uint64
@@ -23,7 +23,7 @@ type row struct {
 
 
 type ErrRow struct {
-	row row
+	row Row
 	errs []error
 }
 
@@ -46,7 +46,7 @@ func (erow *ErrRow) dfFill(args []string) {
 		args[4],
 		args[5],
 		time.Now().Local().Format("2006-01-02 15:04:05"),
-		conf.configYaml.Unit,
+		conf.ConfigYaml.Unit,
 	)
 
 }
@@ -77,7 +77,7 @@ func (erow *ErrRow) _strigify() []string {
 
 	var tmp []string
 	conf, _ := GetConfig()
-	helms := conf.configYaml.Csv.Header
+	helms := conf.ConfigYaml.Csv.Header
 
 	for _, elm := range helms {
 

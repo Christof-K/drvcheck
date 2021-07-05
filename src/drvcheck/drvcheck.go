@@ -1,4 +1,4 @@
-package helper
+package drvcheck
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ func check() []error {
 	if cerr != nil {
 		return append(make([]error, 0), cerr)
 	}
-	if len(conf.configYaml.Drivers) == 0 {
+	if len(conf.ConfigYaml.Drivers) == 0 {
 		fmt.Println("Edit config.yaml and specify drivers")
 		return nil
 	}
@@ -40,7 +40,7 @@ func check() []error {
 
 		valid := false
 		
-		for _, vol := range conf.configYaml.Drivers {
+		for _, vol := range conf.ConfigYaml.Drivers {
 			if strings.Contains(line, vol) {
 				valid = true
 				break
