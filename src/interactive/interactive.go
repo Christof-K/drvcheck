@@ -99,3 +99,4 @@ func keyBindingSetup(gui *gocui.Gui) []error {
 
 	return errs
 }
+

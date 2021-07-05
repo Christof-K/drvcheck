@@ -3,6 +3,7 @@ package interactive
 import (
 	"fmt"
 	"strings"
+
 	"github.com/jroimartin/gocui"
 )
 
@@ -51,3 +52,4 @@ func (_stw *StatTypeWidget) getActiveType() StatTypeWidgetType {
 	}
 	return activeType
 }
+
