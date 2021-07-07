@@ -1,8 +1,8 @@
 package main
 
 import (
-	"drvcheck/src/drvcheck"
-	"drvcheck/src/interactive"
+	"drvcheck/app"
+	"drvcheck/interactive"
 	"flag"
 	"os"
 	"strings"

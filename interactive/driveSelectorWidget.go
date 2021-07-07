@@ -24,7 +24,7 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 	view.FgColor = gocui.ColorWhite
 
 	view.Title = "Choose drive"
-	fmt.Fprintln(view, "\n")
+	fmt.Fprint(view, "\n")
 
 	if ds_initiate {
 		delms.initDriveElms()

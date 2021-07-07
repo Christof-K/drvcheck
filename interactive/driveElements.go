@@ -1,7 +1,7 @@
 package interactive
 
 import (
-	"drvcheck/src/drvcheck"
+	"drvcheck/app"
 	"time"
 )
 
@@ -20,7 +20,7 @@ func (des *driveElms) initDriveElms() {
 	
 	conf, _ := drvcheck.GetConfig()
 	csvModel := drvcheck.GetCsvModelInstance()
-	rows := csvModel.Read(time.Now().Local().AddDate(0, 0, defaultDataPeriodDays * -1))
+	rows := csvModel.Read(time.Now().Local().AddDate(0, 0, GraphDaysRangeActive * -1))
 
 	selb := true
 	des.elms = nil

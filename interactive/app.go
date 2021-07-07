@@ -5,7 +5,7 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-const defaultDataPeriodDays = 20
+
 var delms driveElms
 
 
@@ -81,19 +81,22 @@ func keyBindingSetup(gui *gocui.Gui) []error {
 		errs = append(errs, err3)
 	}
 
+	
+	graphDaysRange := []int{1, 3, 7, 14, 30, 90}
+
 	gui.SetKeybinding("", gocui.KeyTab, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+
+
 		key := 0
-		for k, t := range stw.types {
-			if t.active {
-				stw.types[k].active = false
-				key = k + 1
-				if key > len(stw.types) - 1 {
-					key = 0
+		for k, dr := range graphDaysRange {
+			if dr == GraphDaysRangeActive {
+				if k + 1 <= len(graphDaysRange) - 1 {
+					key = k + 1
 				}
-				break
 			}
 		}
-		stw.types[key].active = true
+		
+		GraphDaysRangeActive = graphDaysRange[key]
 		return nil
 	})
 

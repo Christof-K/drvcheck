@@ -8,9 +8,12 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+var GraphDaysRangeActive int
+
 type DriveStatWidget struct {
 	name string
 	x, y, w, h int
+	// DaysRangeActive int
 }
 
 func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
@@ -24,10 +27,13 @@ func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
 	// conf, _ := GetConfig()
 
 	elm := delms.getSelected()
-	view.Title = "Stats of " + elm.name + " | last " + strconv.FormatUint(defaultDataPeriodDays, 10) + " days"// + conf.configYaml.Unit
+	if GraphDaysRangeActive == 0 {
+		GraphDaysRangeActive = 7
+	}
+	view.Title = "Stats of " + elm.name + " | last " + strconv.FormatUint(uint64(GraphDaysRangeActive), 10) + " days"// + conf.configYaml.Unit
 	// view.BgColor = gocui.ColorBlue
 	
-	fmt.Fprintln(view, "\n")
+	fmt.Fprint(view, "\n")
 
 
 	var graphData []float64
