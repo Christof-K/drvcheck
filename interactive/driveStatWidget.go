@@ -26,7 +26,7 @@ func (dstat *DriveStatWidget) Layout(g *gocui.Gui) error {
 
 	// conf, _ := GetConfig()
 
-	elm := delms.getSelected()
+	elm := Delms.getSelected()
 	if GraphDaysRangeActive == 0 {
 		GraphDaysRangeActive = 7
 	}

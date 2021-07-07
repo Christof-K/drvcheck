@@ -13,11 +13,13 @@ type driveElm struct {
 
 type driveElms struct {
 	elms []driveElm
+	initiated bool
 }
 
 
 func (des *driveElms) initDriveElms() {
 	
+	des.initiated = true
 	conf, _ := drvcheck.GetConfig()
 	csvModel := drvcheck.GetCsvModelInstance()
 	rows := csvModel.Read(time.Now().Local().AddDate(0, 0, GraphDaysRangeActive * -1))

@@ -2,12 +2,9 @@ package interactive
 
 import (
 	"fmt"
-
 	"github.com/jroimartin/gocui"
 )
 
-
-var ds_initiate = true
 
 type DriveSelectorWidget struct {
 	name string
@@ -26,12 +23,11 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 	view.Title = "Choose drive"
 	fmt.Fprint(view, "\n")
 
-	if ds_initiate {
-		delms.initDriveElms()
-		ds_initiate = false
+	if !Delms.initiated {
+		Delms.initDriveElms()
 	}
 
-	for _, delm := range delms.elms {
+	for _, delm := range Delms.elms {
 		var displayName string
 		if delm.selected {
 			displayName += "[*]"

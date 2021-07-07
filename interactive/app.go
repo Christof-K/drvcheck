@@ -6,7 +6,7 @@ import (
 )
 
 
-var delms driveElms
+var Delms driveElms
 
 
 func Run() {
@@ -66,7 +66,7 @@ func keyBindingSetup(gui *gocui.Gui) []error {
 
 	// navigate
 	err2 := gui.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		delms.selectNext()
+		Delms.selectNext()
 		return nil
 	})
 	if err2 != nil {
@@ -74,7 +74,7 @@ func keyBindingSetup(gui *gocui.Gui) []error {
 	}
 
 	err3 := gui.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-		delms.selectPrev()
+		Delms.selectPrev()
 		return nil
 	})
 	if err3 != nil {
