@@ -13,9 +13,6 @@ type Row struct {
 	Used          uint64
 	Avail         uint64
 	Capacity      string
-	// IsUsed        uint64
-	// IsFree        uint64
-	// IsUsedPercent string
 	MountedOn     string
 	Time          string // time of command execution, not from "df" output
 	MemUnit       string
@@ -52,9 +49,9 @@ func (erow *ErrRow) dfFill(args []string) {
 
 func (erow *ErrRow) _fill(filesystem, size, used, avail, capacity, mountedOn, time, memUnit string) {
 	erow.row.Filesystem = filesystem
-	erow.parseMemInt(size, &erow.row.Size)
-	erow.parseMemInt(used, &erow.row.Used)
-	erow.parseMemInt(avail, &erow.row.Avail)
+	erow.errParseInt(size, &erow.row.Size)
+	erow.errParseInt(used, &erow.row.Used)
+	erow.errParseInt(avail, &erow.row.Avail)
 	erow.row.Capacity = capacity
 	erow.row.MountedOn = mountedOn
 	erow.row.Time = time
@@ -62,13 +59,12 @@ func (erow *ErrRow) _fill(filesystem, size, used, avail, capacity, mountedOn, ti
 }
 
 
-func (erow *ErrRow) parseMemInt(value string, result *uint64) {
+func (erow *ErrRow) errParseInt(value string, result *uint64) {
 	res, err := strconv.ParseUint(value, 0, 64)
 	if err != nil {
 		erow.errs = append(erow.errs, err)
-	} else {
-		*result = _parseMemInt(res)
-	}
+	} 
+	*result = res
 }
 
 func (erow *ErrRow) _stringify() []string {

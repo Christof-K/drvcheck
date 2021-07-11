@@ -8,7 +8,7 @@ import (
 
 func configOverride() {
 	Conf.isLoaded = true
-	Conf.ConfigYaml.Unit = "KB"
+	Conf.ConfigYaml.Unit = "GB"
 	Conf.ConfigYaml.Csv.Mode = "daily"
 	Conf.ConfigYaml.Csv.Dir = "."
 	Conf.ConfigYaml.Csv.Header = []string{
@@ -96,7 +96,7 @@ func _testDfRow(rows [][]string, t *testing.T) []error {
 }
 
 
-func TestDfRowParseMemInt(t *testing.T) {
+func TestDfRowErrParseInt(t *testing.T) {
 
 	configOverride()
 
@@ -104,12 +104,12 @@ func TestDfRowParseMemInt(t *testing.T) {
 	erow.dfFill([]string{"/dev/d0", "3000", "10", "2990", "90%", "."})
 
 	var val1 uint64
-	if erow.parseMemInt("30", &val1); val1 != 30 {
+	if erow.errParseInt("30", &val1); val1 != 30 {
 		t.Error("parseMemInt invalid value")
 	}
 
 	var val2 uint64
-	if erow.parseMemInt("xxx", &val2); len(erow.errs) == 0 {
+	if erow.errParseInt("xxx", &val2); len(erow.errs) == 0 {
 		t.Error("parseMemInt expected parseUint error")
 	}
 
