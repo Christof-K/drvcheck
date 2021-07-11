@@ -17,17 +17,14 @@ type driveElms struct {
 }
 
 
-func (des *driveElms) initDriveElms() {
+func (drvElms *driveElms) initDriveElms(conf drvcheck.Config, csvModel *drvcheck.CsvModel) {
 	
-	des.initiated = true
-	conf, _ := drvcheck.GetConfig()
-	csvModel := drvcheck.GetCsvModelInstance()
+	drvElms.elms = nil
+	drvElms.initiated = true
+	
 	rows := csvModel.Read(time.Now().Local().AddDate(0, 0, GraphDaysRangeActive * -1))
 
-	selb := true
-	des.elms = nil
-
-	for _, elm := range conf.ConfigYaml.Drivers {
+	for k, elm := range conf.ConfigYaml.Drivers {
 		
 		var elmRows []drvcheck.Row
 		for _, r := range rows {
@@ -36,16 +33,15 @@ func (des *driveElms) initDriveElms() {
 			}
 		}
 
-		tmp := driveElm{selb, elm, elmRows}
-		des.elms = append(des.elms, tmp)
-		selb = false
+		tmp := driveElm{(k==0), elm, elmRows}
+		drvElms.elms = append(drvElms.elms, tmp)
 	}
 }
 
-func (des *driveElms) getSelected() driveElm {
+func (drvElms *driveElms) getSelected() driveElm {
 
 	var selectedElm driveElm
-	for _, elm := range des.elms {
+	for _, elm := range drvElms.elms {
 		if elm.selected {
 			selectedElm = elm
 			break
@@ -55,37 +51,37 @@ func (des *driveElms) getSelected() driveElm {
 	return selectedElm
 }
 
-func (de *driveElms) selectNext() {
+func (drvElms *driveElms) selectNext() {
 
 	key := 0
-	for k, elm := range de.elms {
+	for k, elm := range drvElms.elms {
 	
 		if elm.selected {
 			key = k + 1
-			if key > len(de.elms) - 1 {
+			if key > len(drvElms.elms) - 1 {
 				key = 0
 			}
-			de.elms[k].selected = false
+			drvElms.elms[k].selected = false
 			break
 		}
 	}
 	
-	de.elms[key].selected = true
+	drvElms.elms[key].selected = true
 }
 
-func (de *driveElms) selectPrev() {
-	key := 0
-	for k, elm := range de.elms {
+func (drvElms *driveElms) selectPrev() {
 
+	key := 0
+	for k, elm := range drvElms.elms {
 		if elm.selected {
-			de.elms[k].selected = false
+			drvElms.elms[k].selected = false
 			key = k - 1
 			if key < 0 {
-				key = len(de.elms) - 1
+				key = len(drvElms.elms) - 1
 			}
 			break
 		}
 	}
 
-	de.elms[key].selected = true
+	drvElms.elms[key].selected = true
 }

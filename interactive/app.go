@@ -7,7 +7,7 @@ import (
 
 
 var Delms driveElms
-
+var RunTestMode = false
 
 func Run() {
 	
@@ -48,8 +48,6 @@ func Run() {
 		fmt.Println("gocui: main loop panic err")
 		panic(err)
 	}
-
-	
 
 }
 

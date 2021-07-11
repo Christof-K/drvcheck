@@ -13,11 +13,11 @@ type Row struct {
 	Used          uint64
 	Avail         uint64
 	Capacity      string
-	IsUsed        uint64
-	IsFree        uint64
-	IsUsedPercent string
+	// IsUsed        uint64
+	// IsFree        uint64
+	// IsUsedPercent string
 	MountedOn     string
-	Time          string
+	Time          string // time of command execution, not from "df" output
 	MemUnit       string
 }
 
@@ -36,8 +36,6 @@ func (erow *ErrRow) dfFill(args []string) {
 	}
 
 	conf, _ := GetConfig()
-
-
 	erow._fill(
 		args[0],
 		args[1],
@@ -73,19 +71,19 @@ func (erow *ErrRow) parseMemInt(value string, result *uint64) {
 	}
 }
 
-func (erow *ErrRow) _strigify() []string {
+func (erow *ErrRow) _stringify() []string {
 
 	var tmp []string
 	conf, _ := GetConfig()
 	helms := conf.ConfigYaml.Csv.Header
 
-	for _, elm := range helms {
+	for _, helm := range helms {
 
-		refRowFieldType, found := reflect.TypeOf(erow.row).FieldByName(elm)
+		refRowFieldType, found := reflect.TypeOf(erow.row).FieldByName(helm)
 		if !found {
-			continue // todo: err?
+			panic("CSV header item not found in erow")
 		}
-		refRowFieldValue := reflect.ValueOf(erow.row).FieldByName(elm)
+		refRowFieldValue := reflect.ValueOf(erow.row).FieldByName(helm)
 
 		switch refRowFieldType.Type {
 			case reflect.TypeOf((uint64)(0)):
@@ -94,6 +92,6 @@ func (erow *ErrRow) _strigify() []string {
 				tmp = append(tmp, refRowFieldValue.String())
 		}
 	}
-
+	
 	return tmp
 }

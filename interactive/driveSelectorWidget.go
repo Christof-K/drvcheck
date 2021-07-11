@@ -2,6 +2,7 @@ package interactive
 
 import (
 	"fmt"
+	"drvcheck/app"
 	"github.com/jroimartin/gocui"
 )
 
@@ -24,7 +25,8 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 	fmt.Fprint(view, "\n")
 
 	if !Delms.initiated {
-		Delms.initDriveElms()
+		conf, _ := drvcheck.GetConfig()
+		Delms.initDriveElms(conf, drvcheck.GetCsvModelInstance())
 	}
 
 	for _, delm := range Delms.elms {

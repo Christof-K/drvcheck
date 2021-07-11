@@ -197,7 +197,7 @@ func (model *CsvModel) strigify() string {
 	var tmp string
 
 	for _, row := range model.erows {
-		tmp += "\n" + strings.Join(row._strigify(), delimiter)
+		tmp += "\n" + strings.Join(row._stringify(), delimiter)
 	}
 
 	return tmp

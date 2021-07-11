@@ -49,6 +49,9 @@ func main() {
 			switch(arg) {
 				case "interactive":
 					interactive.Run()
+				case "interactive-test":
+					interactive.RunTestMode = true
+					interactive.Run()
 				default:
 					drvcheck.Run()
 			}
