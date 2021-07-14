@@ -49,7 +49,6 @@ func check() []error {
 
 		if valid {
 			row := ErrRow{}
-			// args := strings.Split(line, "\t") // 
 			args := strings.Fields(line)
 			row.dfFill(args)
 
@@ -57,7 +56,7 @@ func check() []error {
 				return row.errs
 			}
 
-			model.erows = append(model.erows, row)
+			model.AddRow(row)
 		}
 
 	}

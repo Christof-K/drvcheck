@@ -17,7 +17,9 @@ type driveElms struct {
 }
 
 
-func (drvElms *driveElms) initDriveElms(conf drvcheck.Config, csvModel *drvcheck.CsvModel) {
+func (drvElms *driveElms) initDriveElms(csvModel *drvcheck.CsvModel) {
+
+	conf,_ := drvcheck.GetConfig()
 	
 	drvElms.elms = nil
 	drvElms.initiated = true

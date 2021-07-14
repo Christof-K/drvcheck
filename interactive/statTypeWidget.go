@@ -42,14 +42,14 @@ func (_stw *StatTypeWidget) Layout(g *gocui.Gui) error {
 }
 
 
-func (_stw *StatTypeWidget) getActiveType() StatTypeWidgetType {
-	activeType := _stw.types[0]
-	for _, t := range _stw.types {
-		if t.active {
-			activeType = t
-			break
-		}
-	}
-	return activeType
-}
+// func (_stw *StatTypeWidget) getActiveType() StatTypeWidgetType {
+// 	activeType := _stw.types[0]
+// 	for _, t := range _stw.types {
+// 		if t.active {
+// 			activeType = t
+// 			break
+// 		}
+// 	}
+// 	return activeType
+// }
 

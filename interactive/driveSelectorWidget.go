@@ -25,8 +25,7 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 	fmt.Fprint(view, "\n")
 
 	if !Delms.initiated {
-		conf, _ := drvcheck.GetConfig()
-		Delms.initDriveElms(conf, drvcheck.GetCsvModelInstance())
+		Delms.initDriveElms(drvcheck.GetCsvModelInstance())
 	}
 
 	for _, delm := range Delms.elms {

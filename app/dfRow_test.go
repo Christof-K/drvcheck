@@ -7,7 +7,7 @@ import (
 
 
 func configOverride() {
-	Conf.isLoaded = true
+	Conf.IsLoaded = true
 	Conf.ConfigYaml.Unit = "GB"
 	Conf.ConfigYaml.Csv.Mode = "daily"
 	Conf.ConfigYaml.Csv.Dir = "."

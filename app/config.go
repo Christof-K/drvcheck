@@ -30,20 +30,20 @@ func (pc *PreConfig) SetYamlConfigPath(path string) {
 
 
 type Config struct {
-	isLoaded bool
+	IsLoaded bool
 	ConfigYaml *configYaml
 	PreConfig *PreConfig
 }
 
 var Conf = &Config{
-	isLoaded: false,
+	IsLoaded: false,
 	ConfigYaml: &configYaml{},
 	PreConfig: &PreConfig{},
 }
 
 func GetConfig() (Config, error) {
 	
-	if !Conf.isLoaded {
+	if !Conf.IsLoaded {
 		fmt.Println("Reading configuration....")
 
 		var path string
@@ -70,7 +70,7 @@ func GetConfig() (Config, error) {
 		}
 
 		// Conf.configYaml.Csv.Dir = path
-		Conf.isLoaded = true
+		Conf.IsLoaded = true
 	}
 
 	return *Conf, nil

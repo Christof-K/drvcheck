@@ -24,7 +24,7 @@ type ErrRow struct {
 	errs []error
 }
 
-/** @see fillFromCsv **/
+
 func (erow *ErrRow) dfFill(args []string) {
 
 	if len(args) < 6 {
@@ -33,7 +33,7 @@ func (erow *ErrRow) dfFill(args []string) {
 	}
 
 	conf, _ := GetConfig()
-	erow._fill(
+	erow.StrFill(
 		args[0],
 		args[1],
 		args[2],
@@ -47,7 +47,7 @@ func (erow *ErrRow) dfFill(args []string) {
 }
 
 
-func (erow *ErrRow) _fill(filesystem, size, used, avail, capacity, mountedOn, time, memUnit string) {
+func (erow *ErrRow) StrFill(filesystem, size, used, avail, capacity, mountedOn, time, memUnit string) {
 	erow.row.Filesystem = filesystem
 	erow.errParseInt(size, &erow.row.Size)
 	erow.errParseInt(used, &erow.row.Used)

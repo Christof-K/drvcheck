@@ -36,6 +36,10 @@ func (me *modelError) Error() string {
 	return me.err
 }
 
+func (model *CsvModel) AddRow(row ...ErrRow) {
+	model.erows = append(model.erows, row...)
+}
+
 func (model *CsvModel) Read(dateFrom time.Time) []Row {
 
 	var rows []Row
@@ -76,13 +80,13 @@ func (model *CsvModel) rowsFromCsvFile(content string) []Row {
 	}
 
 	lines := strings.Split(content, "\n")
-	header := strings.Split(lines[0], delimiter)
+	header := strings.Split(lines[0], Delimiter)
 	fileData := lines[1:]
 
 
 	for _, line := range fileData {
 		row := ErrRow{}
-		args := strings.Split(line, delimiter)
+		args := strings.Split(line, Delimiter)
 		if len(args) == 0 {
 			continue
 		}
@@ -183,12 +187,12 @@ func (model *CsvModel) getFile(dailyFrom time.Time) (string, string) {
 }
 
 
-var delimiter = ";"
+var Delimiter = ";"
 
 func BuildHeader() (string, error) {
 	var strheader string
 	conf, err := GetConfig()
-	strheader = strheader + strings.Join(conf.ConfigYaml.Csv.Header, delimiter)
+	strheader = strheader + strings.Join(conf.ConfigYaml.Csv.Header, Delimiter)
 	return strheader, err
 }
 
@@ -197,7 +201,7 @@ func (model *CsvModel) strigify() string {
 	var tmp string
 
 	for _, row := range model.erows {
-		tmp += "\n" + strings.Join(row._stringify(), delimiter)
+		tmp += "\n" + strings.Join(row._stringify(), Delimiter)
 	}
 
 	return tmp
