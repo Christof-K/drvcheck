@@ -1,6 +1,9 @@
 package drvcheck
 
 import (
+	csv "drvcheck/csv"
+	config "drvcheck/config"
+	rowable "drvcheck/rowable"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -17,7 +20,7 @@ func check() []error {
 
 	fmt.Println("Run check...")
 
-	conf, cerr := GetConfig()
+	conf, cerr := config.GetConfig()
 	if cerr != nil {
 		return append(make([]error, 0), cerr)
 	}
@@ -34,7 +37,12 @@ func check() []error {
 	stringOutput := string(output[:])
 	lines := strings.Split(stringOutput, "\n")
 
-	model := GetCsvModelInstance()
+	model := csv.GetCsvModelInstance(
+		conf.ConfigYaml.Unit,
+		conf.ConfigYaml.Csv.Header,
+		conf.ConfigYaml.Csv.Dir,
+		conf.ConfigYaml.Csv.Mode,
+	)
 
 	for _, line := range lines[1:] {
 
@@ -48,12 +56,12 @@ func check() []error {
 		}
 
 		if valid {
-			row := ErrRow{}
+			row := rowable.ErrRow{}
 			args := strings.Fields(line)
-			row.dfFill(args)
+			row.DfFill(args, config.Conf.ConfigYaml.Unit)
 
-			if row.errs != nil {
-				return row.errs
+			if row.Errs != nil {
+				return row.Errs
 			}
 
 			model.AddRow(row)
@@ -61,8 +69,8 @@ func check() []error {
 
 	}
 
-	model.store()
+	model.Store()
 
-	return model.errs
+	return model.Errs
 }
 

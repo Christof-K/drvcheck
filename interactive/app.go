@@ -1,6 +1,7 @@
 package interactive
 
 import (
+	config "drvcheck/config"
 	"fmt"
 	"github.com/jroimartin/gocui"
 )
@@ -9,7 +10,11 @@ import (
 var Delms driveElms
 var RunTestMode = false
 
+var conf config.Config
+
 func Run() {
+
+	conf, _ = config.GetConfig()
 	
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"drvcheck/app"
-	"drvcheck/interactive"
+	config "drvcheck/config"
+	drvcheck "drvcheck/app"
+	interactive "drvcheck/interactive"
 	"flag"
 	"os"
 	"strings"
@@ -13,20 +14,13 @@ const MODE_DEV = "dev"
 
 func main() {
 
-	// defer func() {
-	// 	panic_err := recover()
-	// 	if panic_err != nil {
-	// 		fmt.Println("Panic", panic_err)
-	// 	}
-	// }()
-
 	flag_mode := flag.String("mode", "exec", "Mode exec or dev (override config path)")
 	flag.Parse()
 
 
 	switch *flag_mode {
 		case MODE_DEV:
-			drvcheck.Conf.PreConfig.SetYamlConfigPath(".")
+			config.Conf.PreConfig.SetYamlConfigPath(".")
 		// case MODE_EXEC: nothing
 	}
 
@@ -58,4 +52,8 @@ func main() {
 		}
 	}
 
+}
+
+func GetConfig() {
+	
 }

@@ -38,10 +38,3 @@ where `/full/path/to/drvcheck/` is full path to drvcheck directory.
 More about crontab [here](https://man7.org/linux/man-pages/man5/crontab.5.html "here").
 
 
-
-## TODO
-- CLI interactive mode with charts
-
-
-
-

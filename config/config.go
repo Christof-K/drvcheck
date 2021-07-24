@@ -1,4 +1,4 @@
-package drvcheck
+package config
 
 import (
 	"fmt"

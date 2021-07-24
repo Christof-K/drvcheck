@@ -1,15 +1,15 @@
 package interactive
 
 import (
-	"drvcheck/app"
-	"time"
+	rowable "drvcheck/rowable"
 )
 
 type driveElm struct {
 	selected bool
 	name     string
-	data     []drvcheck.Row
+	data     []rowable.Row
 }
+
 
 type driveElms struct {
 	elms []driveElm
@@ -17,18 +17,16 @@ type driveElms struct {
 }
 
 
-func (drvElms *driveElms) initDriveElms(csvModel *drvcheck.CsvModel) {
 
-	conf,_ := drvcheck.GetConfig()
-	
+func (drvElms *driveElms) initDriveElms(rows []rowable.Row) {
+
 	drvElms.elms = nil
 	drvElms.initiated = true
-	
-	rows := csvModel.Read(time.Now().Local().AddDate(0, 0, GraphDaysRangeActive * -1))
+
 
 	for k, elm := range conf.ConfigYaml.Drivers {
 		
-		var elmRows []drvcheck.Row
+		var elmRows []rowable.Row
 		for _, r := range rows {
 			if r.Filesystem == elm || r.MountedOn == elm {
 				elmRows = append(elmRows, r)

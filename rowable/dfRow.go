@@ -1,4 +1,4 @@
-package drvcheck
+package rowable
 
 import (
 	"errors"
@@ -20,19 +20,18 @@ type Row struct {
 
 
 type ErrRow struct {
-	row Row
-	errs []error
+	Row Row
+	Errs []error
 }
 
 
-func (erow *ErrRow) dfFill(args []string) {
+func (erow *ErrRow) DfFill(args []string, memUnit string) {
 
 	if len(args) < 6 {
-		erow.errs = append(erow.errs, errors.New("fill: invalid args"))
+		erow.Errs = append(erow.Errs, errors.New("fill: invalid args"))
 		return
 	}
 
-	conf, _ := GetConfig()
 	erow.StrFill(
 		args[0],
 		args[1],
@@ -41,45 +40,43 @@ func (erow *ErrRow) dfFill(args []string) {
 		args[4],
 		args[5],
 		time.Now().Local().Format("2006-01-02 15:04:05"),
-		conf.ConfigYaml.Unit,
+		memUnit,
 	)
 
 }
 
 
 func (erow *ErrRow) StrFill(filesystem, size, used, avail, capacity, mountedOn, time, memUnit string) {
-	erow.row.Filesystem = filesystem
-	erow.errParseInt(size, &erow.row.Size)
-	erow.errParseInt(used, &erow.row.Used)
-	erow.errParseInt(avail, &erow.row.Avail)
-	erow.row.Capacity = capacity
-	erow.row.MountedOn = mountedOn
-	erow.row.Time = time
-	erow.row.MemUnit = memUnit
+	erow.Row.Filesystem = filesystem
+	erow.errParseInt(size, &erow.Row.Size)
+	erow.errParseInt(used, &erow.Row.Used)
+	erow.errParseInt(avail, &erow.Row.Avail)
+	erow.Row.Capacity = capacity
+	erow.Row.MountedOn = mountedOn
+	erow.Row.Time = time
+	erow.Row.MemUnit = memUnit
 }
 
 
 func (erow *ErrRow) errParseInt(value string, result *uint64) {
 	res, err := strconv.ParseUint(value, 0, 64)
 	if err != nil {
-		erow.errs = append(erow.errs, err)
+		erow.Errs = append(erow.Errs, err)
 	} 
 	*result = res
 }
 
-func (erow *ErrRow) _stringify() []string {
+func (erow *ErrRow) Stringify(headerElements []string) []string {
 
 	var tmp []string
-	conf, _ := GetConfig()
-	helms := conf.ConfigYaml.Csv.Header
 
-	for _, helm := range helms {
+	for _, helm := range headerElements {
 
-		refRowFieldType, found := reflect.TypeOf(erow.row).FieldByName(helm)
+		refRowFieldType, found := reflect.TypeOf(erow.Row).FieldByName(helm)
 		if !found {
 			panic("CSV header item not found in erow")
 		}
-		refRowFieldValue := reflect.ValueOf(erow.row).FieldByName(helm)
+		refRowFieldValue := reflect.ValueOf(erow.Row).FieldByName(helm)
 
 		switch refRowFieldType.Type {
 			case reflect.TypeOf((uint64)(0)):

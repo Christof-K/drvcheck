@@ -2,7 +2,9 @@ package interactive
 
 import (
 	"fmt"
-	"drvcheck/app"
+	"time"
+	csv "drvcheck/csv"
+
 	"github.com/jroimartin/gocui"
 )
 
@@ -25,7 +27,14 @@ func (ds *DriveSelectorWidget) Layout(g *gocui.Gui) error {
 	fmt.Fprint(view, "\n")
 
 	if !Delms.initiated {
-		Delms.initDriveElms(drvcheck.GetCsvModelInstance())
+		csvModel := csv.GetCsvModelInstance(
+			conf.ConfigYaml.Unit,
+			conf.ConfigYaml.Csv.Header,
+			conf.ConfigYaml.Csv.Dir,
+			conf.ConfigYaml.Csv.Mode,
+		)
+		rows := csvModel.Read(time.Now().Local().AddDate(0, 0, GraphDaysRangeActive * -1))
+		Delms.initDriveElms(rows)
 	}
 
 	for _, delm := range Delms.elms {

@@ -1,7 +1,8 @@
 package interactive
 
 import (
-	"drvcheck/app"
+	rowable "drvcheck/rowable"
+	config "drvcheck/config"
 	"testing"
 	"time"
 )
@@ -9,19 +10,21 @@ import (
 
 func TestDriveElms(t *testing.T) {
 
-	drvcheck.Conf.IsLoaded = true
-	drvcheck.Conf.ConfigYaml.Drivers = []string{
+	
+	config.Conf.IsLoaded = true
+	config.Conf.ConfigYaml.Drivers = []string{
 		"/dev1",
 		"/dev2",
 		"/dev3",
 	}
+	conf = *config.Conf
 
 	if Delms.initiated {
 		t.Errorf("driveElements unknown initialisation")
 	}
 
-	tmpCsvModel := drvcheck.GetCsvModelInstance()
-	erow1 := drvcheck.ErrRow{}
+
+	erow1 := rowable.ErrRow{}
 	erow1.StrFill(
 		"/dev1",
 		"1048576",
@@ -32,7 +35,7 @@ func TestDriveElms(t *testing.T) {
 		time.Now().Local().Format("2006-01-02 15:04:05"),
 		"KB",
 	)
-	erow2 := drvcheck.ErrRow{}
+	erow2 := rowable.ErrRow{}
 	erow2.StrFill(
 		"/dev2",
 		"2048576",
@@ -44,7 +47,7 @@ func TestDriveElms(t *testing.T) {
 		"KB",
 	)
 
-	erow3 := drvcheck.ErrRow{}
+	erow3 := rowable.ErrRow{}
 	erow3.StrFill(
 		"/dev3",
 		"2048576",
@@ -56,8 +59,9 @@ func TestDriveElms(t *testing.T) {
 		"KB",
 	)
 
-	tmpCsvModel.AddRow(erow1, erow2, erow3)
-	Delms.initDriveElms(tmpCsvModel)
+	var rows []rowable.Row
+	rows = append(rows, erow1.Row, erow2.Row, erow3.Row)
+	Delms.initDriveElms(rows)
 
 
 	if Delms.getSelected().name != "/dev1" {

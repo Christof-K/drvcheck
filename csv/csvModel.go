@@ -1,31 +1,62 @@
-package drvcheck
+package csv
 
 import (
+	rowable "drvcheck/rowable"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
+	"crypto/md5"
 )
 
-var lock = &sync.Mutex{}
+// var lock = &sync.Mutex{}
 var csvModelInstance *CsvModel
 
-func GetCsvModelInstance() *CsvModel {
+func GetCsvModelInstance(unit string, header []string, dir string, mode string) *CsvModel {
+
+	if csvModelInstance != nil {
+
+		hasher := md5.New()
+		hasher.Write([]byte(unit+dir+mode))
+		for _, v := range header {
+			hasher.Write([]byte(v))
+		}
+		sum1 := hasher.Sum(nil)
+		
+		hasher.Reset()
+		hasher.Write([]byte(csvModelInstance.config.unit+csvModelInstance.config.dir+csvModelInstance.config.mode))
+		for _, v := range csvModelInstance.config.header {
+			hasher.Write([]byte(v))
+		}
+		sum2 := hasher.Sum(nil)
+
+		if string(sum1) != string(sum2) {
+			csvModelInstance = nil
+		}
+		
+	}
+
 	if csvModelInstance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-		if csvModelInstance == nil {
-			csvModelInstance = &CsvModel{}
+		csvModelInstance = &CsvModel{}
+		csvModelInstance.config = configCsvModel{
+			unit, header, dir, mode,
 		}
 	}
 	return csvModelInstance
 }
 
+type configCsvModel struct {
+	unit string
+	header []string
+	dir string
+	mode string
+}
+
 type CsvModel struct {
-	errs []error
-	erows []ErrRow
+	Errs []error
+	erows []rowable.ErrRow
+	config configCsvModel
 }
 
 type modelError struct {
@@ -36,13 +67,17 @@ func (me *modelError) Error() string {
 	return me.err
 }
 
-func (model *CsvModel) AddRow(row ...ErrRow) {
+func (model *CsvModel) AddRow(row ...rowable.ErrRow) {
 	model.erows = append(model.erows, row...)
 }
 
-func (model *CsvModel) Read(dateFrom time.Time) []Row {
+func (model *CsvModel) Read(dateFrom time.Time) []rowable.Row {
 
-	var rows []Row
+	// if interactive.RunTestMode {
+	// 	// todo 
+	// }
+
+	var rows []rowable.Row
 
 	dateUnitNow := time.Now().Local().Unix()
 
@@ -50,8 +85,7 @@ func (model *CsvModel) Read(dateFrom time.Time) []Row {
 		panic("dateFrom cannot be after current time")
 	}
 
-	config, _ := GetConfig()
-	if config.ConfigYaml.Csv.Mode == "daily" {
+	if model.config.mode == "daily" {
 		for {
 			tmp, _ := model.getFile(dateFrom.Local())
 			rows = append(rows, model.rowsFromCsvFile(tmp)...)
@@ -71,9 +105,9 @@ func (model *CsvModel) Read(dateFrom time.Time) []Row {
 }
 
 
-func (model *CsvModel) rowsFromCsvFile(content string) []Row {
+func (model *CsvModel) rowsFromCsvFile(content string) []rowable.Row {
 	
-	var rows []Row
+	var rows []rowable.Row
 
 	if content == "" {
 		return rows
@@ -85,7 +119,7 @@ func (model *CsvModel) rowsFromCsvFile(content string) []Row {
 
 
 	for _, line := range fileData {
-		row := ErrRow{}
+		row := rowable.ErrRow{}
 		args := strings.Split(line, Delimiter)
 		if len(args) == 0 {
 			continue
@@ -95,30 +129,30 @@ func (model *CsvModel) rowsFromCsvFile(content string) []Row {
 		for hk, hitem := range header {
 			switch hitem {
 				case "MountedOn":
-					row.row.MountedOn = args[hk]
+					row.Row.MountedOn = args[hk]
 				case "Filesystem":
-					row.row.Filesystem = args[hk]
+					row.Row.Filesystem = args[hk]
 				case "Capacity":
-					row.row.Capacity = args[hk]
+					row.Row.Capacity = args[hk]
 				case "Size":
 					v, _ := strconv.ParseUint(args[hk], 0, 64)
-					row.row.Size = _parseMemInt(v)
+					row.Row.Size = model.parseMemInt(v)
 				case "Used":
 					v, _ := strconv.ParseUint(args[hk], 0, 64)
-					row.row.Used = _parseMemInt(v)
+					row.Row.Used = model.parseMemInt(v)
 				case "Avail":
 					v, _ := strconv.ParseUint(args[hk], 0, 64)
-					row.row.Avail = _parseMemInt(v)
+					row.Row.Avail = model.parseMemInt(v)
 				case "Time":
-					row.row.Time = args[hk]
+					row.Row.Time = args[hk]
 				case "MemUnit":
-					row.row.MemUnit = args[hk]
+					row.Row.MemUnit = args[hk]
 			}
 		}
 
 		
 
-		rows = append(rows, row.row)
+		rows = append(rows, row.Row)
 	}
 
 	
@@ -127,7 +161,7 @@ func (model *CsvModel) rowsFromCsvFile(content string) []Row {
 }
 
 
-func (model *CsvModel) store() {
+func (model *CsvModel) Store() {
 
 	fmt.Println("csvStore - store!")
 
@@ -139,47 +173,42 @@ func (model *CsvModel) store() {
 	fileContentStr, filename := model.getFile(time.Now().Local())
 
 	if fileContentStr == "" {
-		fileContentStr, _ = BuildHeader()
+		fileContentStr, _ = model.BuildHeader()
 	}
 
 	fileContentStr = fileContentStr + model.strigify()
 
 	write_error := os.WriteFile(filename, []byte(fileContentStr), 0777)
 	if write_error != nil {
-		model.errs = append(model.errs, write_error)
+		model.Errs = append(model.Errs, write_error)
 		return
 	}
 }
 
 
 func (model *CsvModel) getFile(dailyFrom time.Time) (string, string) {
-	config, err := GetConfig()
 
-	if err != nil {
-		model.errs = append(model.errs, err)
-		return "", ""
-	}
 
-	filename := config.ConfigYaml.Csv.Dir + "/drvcheck"
+	filename := model.config.dir + "/drvcheck"
 
 	// todo: valid in config.go
-	if config.ConfigYaml.Csv.Mode == "daily" {
+	if model.config.mode == "daily" {
 		filename = filename + "_" + dailyFrom.Format("2006-01-02") + ".csv"
 		// fmt.Println("daily filename read | " + filename)
-	} else if config.ConfigYaml.Csv.Mode == "solid" {
+	} else if model.config.mode == "solid" {
 		filename = filename + ".csv"
 	} else {
 		var err error = &modelError{
-			err: "Invalid CSV mode! (valid modes: daily, solid) | given: " + config.ConfigYaml.Csv.Mode,
+			err: "Invalid CSV mode! (valid modes: daily, solid) | given: " + model.config.mode,
 		}
-		model.errs = append(model.errs, err)
+		model.Errs = append(model.Errs, err)
 		return "", filename
 	}
 
 	fileContentByte, err := os.ReadFile(filename)
 
 	if err != nil {
-		model.errs = append(model.errs, err)
+		model.Errs = append(model.Errs, err)
 	}
 
 	fileContentStr := string(fileContentByte)
@@ -188,12 +217,10 @@ func (model *CsvModel) getFile(dailyFrom time.Time) (string, string) {
 
 
 var Delimiter = ";"
-
-func BuildHeader() (string, error) {
+func (model *CsvModel) BuildHeader() (string, error) {
 	var strheader string
-	conf, err := GetConfig()
-	strheader = strheader + strings.Join(conf.ConfigYaml.Csv.Header, Delimiter)
-	return strheader, err
+	strheader = strheader + strings.Join(model.config.header, Delimiter)
+	return strheader, nil
 }
 
 
@@ -201,15 +228,14 @@ func (model *CsvModel) strigify() string {
 	var tmp string
 
 	for _, row := range model.erows {
-		tmp += "\n" + strings.Join(row._stringify(), Delimiter)
+		tmp += "\n" + strings.Join(row.Stringify(model.config.header), Delimiter)
 	}
 
 	return tmp
 }
 
-func _parseMemInt(value uint64) uint64 {
-	conf, _ := GetConfig()
-	switch (conf.ConfigYaml.Unit) {
+func (model *CsvModel) parseMemInt(value uint64) uint64 {
+	switch (model.config.unit) {
 		case "KB":
 			return value
 		case "MB":
